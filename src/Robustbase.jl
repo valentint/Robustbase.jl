@@ -1,5 +1,7 @@
 module Robustbase
 
-# Write your package code here.
+greet() = print("Hello World from Robustbase!")
+
+export greet
 
 end
