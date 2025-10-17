@@ -39,5 +39,5 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: valentint/rrcovHD
-          file: lcov.info
+
 
