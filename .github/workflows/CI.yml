@@ -52,12 +52,7 @@ jobs:
                using Pkg
                Pkg.develop(PackageSpec(path=pwd()))
                Pkg.instantiate()'
-         - run: |
-             julia --project=docs -e '
-               using Documenter: doctest
-               using Robustbase     # change MyAwesomePackage to the name of your package
-               doctest(Robustbase)' # change MyAwesomePackage to the name of your package
-         - run: julia --project=docs docs/make.jl
+         - run: julia --project=docs --color=yes docs/make.jl
            env:
              GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
              DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
