@@ -1,6 +1,8 @@
 abstract type RobustScale end
 
 """
+    location(rs::RobustScale)
+
 Univariate location
 """
 function location(rs::RobustScale)
@@ -9,6 +11,8 @@ function location(rs::RobustScale)
 end
 
 """
+    scale(rs::RobustScale)
+    
 Univariate scale
 """
 function scale(rs::RobustScale)
@@ -64,7 +68,7 @@ Computes the robust τ-estimate of univariate scale, as proposed by Maronna and 
     Robust Estimates of Location and Dispersion for High-Dimensional Datasets,
     Ricarco A Maronna and Ruben H Zamar (2002)
 # Examples
-```jldoctest
+```julia
 julia> x = hbk[:,1];
 
 julia> tau = Tau();
@@ -316,7 +320,7 @@ Robust Location-Free Scale Estimate More Efficient than MAD
 
     Donald B. Johnson and Tetsuo Mizoguchi (1978). Selecting the k^th element in X+Y and X1+...+Xm
 # Examples
-```jldoctest
+```julia
 julia> x = hbk[:,1];
 
 julia> qn = Qn();

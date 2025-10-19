@@ -2,8 +2,15 @@ module Robustbase
 
 using DataFrames
 using Statistics
+using StatsBase: tiedrank
+
+using LinearAlgebra
+using Random
+using Logging
+using Plots
 
 import Base: show
+import StatsBase: CovarianceEstimator
 
 using Distributions: sample, cdf, pdf, quantile, Normal, Chisq, Gamma
 
@@ -14,6 +21,7 @@ import .DataSets: hbk, stackloss, wood, animals
 greet() = print("Hello World from Robustbase!")
 
 include("RobustScale.jl")
+include("RobustCovariance.jl")
 
 export greet,
     MAD_scale,
@@ -22,9 +30,16 @@ export greet,
     Tau_location,
     Tau_scale,
     Qn_scale,
+    CovClassic,
+    CovMcd,
+    CovOgk,
+    DetMcd,
     fit!,
     scale,
-    location
+    location,
+    covariance,
+    correlation,
+    dd_plot
 
 
 ## Data
