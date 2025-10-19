@@ -4,3 +4,4 @@
 [![codecov.io](http://codecov.io/github/valentint/Robustbase.jl/coverage.svg?branch=main)](http://codecov.io/github/valentint/Robustbase.jl?branch=main)
 [![Doc](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase/dev/)
 
+![](https://raw.githubusercontent.com/jbytecode/LinRegOutliers/master/docs/src/assets/logo.png)
