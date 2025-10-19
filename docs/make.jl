@@ -1,6 +1,6 @@
 push!(LOAD_PATH, "../src/")
 using Documenter
-using .Robustbase
+using Robustbase
 
 DocMeta.setdocmeta!(Robustbase, :DocTestSetup, :(using Robustbase); recursive=true)
 
