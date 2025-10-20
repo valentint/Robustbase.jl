@@ -39,22 +39,4 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: valentint/rrcovHD
-  docs:
-       name: Documentation
-       runs-on: ubuntu-latest
-       steps:
-         - uses: actions/checkout@v5
-         - uses: julia-actions/setup-julia@latest
-           with:
-             version: '1.11'
-         - run: |
-             julia --project=docs -e '
-               using Pkg
-               Pkg.develop(PackageSpec(path=pwd()))
-               Pkg.instantiate()'
-         - run: julia --project=docs --color=yes docs/make.jl
-           env:
-             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-             DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}
-         - uses: julia-actions/julia-processcoverage@latest
-         - uses: codecov/codecov-action@v5
+  
