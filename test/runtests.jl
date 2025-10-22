@@ -46,13 +46,21 @@ using Test
             @test isapprox(location(qn_scaler), 1.8)                   # the median
             @test isapprox(scale(qn_scaler), 1.742783, atol=1e-6)      # R: 1.738852
 
-            ##  Tau matrix version
+            ##  Tau_scale matrix version
             tau1 = Tau_scale(Matrix(hbk));
             tau2 = Tau_scale(Matrix(hbk), dims=2);
             tau3 = Tau_scale(hbk[:,1]);
             @test isapprox(tau1, [2.012462, 1.789908, 1.882716, 0.867699], atol=1e-6)
             @test isapprox(tau2[[1,2,3,75]], [8.196243, 8.487519, 8.861269, 0.172557], atol=1e-6)
             @test isapprox(tau3, 2.012462, atol=1e-6)
+
+            ##  Tau_location matrix version
+            tau1 = Tau_location(Matrix(hbk));
+            tau2 = Tau_location(Matrix(hbk), dims=2);
+            tau3 = Tau_location(hbk[:,1]);
+            @test isapprox(tau1, [1.555454, 1.879245, 1.741631, -0.0443521], atol=1e-6)
+            @test isapprox(tau2[[1,2,3,75]], [15.111434, 15.750955, 15.273159, 0.306762], atol=1e-6)
+            @test isapprox(tau3, 1.555454, atol=1e-6)
 
             ##  Qn matrix version
             qn1 = Qn_scale(Matrix(hbk));
