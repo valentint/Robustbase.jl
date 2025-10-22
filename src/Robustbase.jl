@@ -2,7 +2,7 @@ module Robustbase
 
 using DataFrames
 using Statistics
-using StatsBase: tiedrank
+using StatsBase: tiedrank, cov2cor
 
 using LinearAlgebra
 using Random
@@ -18,12 +18,12 @@ using Distributions: sample, cdf, pdf, quantile, Normal, Chisq, Gamma
 include("data.jl")
 import .DataSets: hbk, stackloss, wood, animals
 
-greet() = print("Hello World from Robustbase!")
+##  greet() = print("Hello World from Robustbase!")
 
 include("RobustScale.jl")
 include("RobustCovariance.jl")
 
-export greet,
+export ## greet,
     MAD_scale,
     Tau,
     Qn,

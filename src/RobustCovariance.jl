@@ -69,10 +69,10 @@ end
 Correlation matrix
 """
 function correlation(model::CovarianceEstimator)::Matrix{Float64}
-    if isnothing(model.correlation_) || length(model.correlation_) == 0
-        error("This estimator does not calculate correlation.")
+    if isnothing(model.covariance_) || length(model.covariance_) == 0
+        error("Model is not fitted yet!")
     end
-    return model.correlation_
+    return cov2cor(covariance(model))
 end
 
 """
@@ -394,7 +394,6 @@ mutable struct CovMcd <: RobustCovariance
     crit::Float64
     location_::Vector{Float64}
     covariance_::Matrix{Float64}
-    correlation_::Matrix{Float64}
     default_location_::Vector{Float64}
     default_covariance_::Matrix{Float64}
     raw_location::Vector{Float64}
@@ -412,7 +411,7 @@ mutable struct CovMcd <: RobustCovariance
 
         new(alpha, n_initial_subsets, n_initial_c_steps, n_best_subsets, 
         n_partitions, tolerance, reweighting, verbosity, assume_centered,
-        0, 0, [], 0, [], [;;], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [])
+        0, 0, [], 0, [], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [])
     end
 end
 
@@ -634,7 +633,6 @@ mutable struct DetMcd <: RobustCovariance
     crit::Float64
     location_::Union{Nothing, Vector{Float64}}
     covariance_::Union{Nothing, Matrix{Float64}}
-    correlation_::Matrix{Float64}
     default_location_::Vector{Float64}
     default_covariance_::Matrix{Float64}
     raw_location::Vector{Float64}
@@ -651,7 +649,7 @@ mutable struct DetMcd <: RobustCovariance
     function DetMcd(; assume_centered=false,  alpha=nothing, n_maxcsteps=200, tolerance=1e-8,
         reweighting=true, verbosity=Logging.Warn)
         new(alpha, n_maxcsteps, tolerance, reweighting, verbosity, assume_centered,
-        0, 0, [], [], 0, [], [;;], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [], [], [;;])
+        0, 0, [], [], 0, [], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [], [], [;;])
     end
 end
 
@@ -913,7 +911,6 @@ mutable struct CovOgk <: RobustCovariance
     nobs::Int
     location_::Union{Vector{Float64}, Nothing}
     covariance_::Union{Matrix{Float64}, Nothing}
-    correlation_::Matrix{Float64}
     default_location_::Vector{Float64}
     default_covariance_::Matrix{Float64}
     robust_distances_::Vector{Float64}
@@ -929,7 +926,7 @@ mutable struct CovOgk <: RobustCovariance
         reweighting_beta::Float64=0.9
     )
         return new(store_precision, assume_centered, location_estimator, scale_estimator, 
-            n_iterations, reweighting, reweighting_beta, 0, [], [;;], [;;], [], [;;], [], [])
+            n_iterations, reweighting, reweighting_beta, 0, [], [;;], [], [;;], [], [])
     end
 end
 
