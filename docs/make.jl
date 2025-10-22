@@ -1,8 +1,4 @@
-push!(LOAD_PATH, "../src/")
-using Documenter
-using .Robustbase
-
-DocMeta.setdocmeta!(Robustbase, :DocTestSetup, :(using Robustbase); recursive=true)
+using Documenter, Robustbase
 
 makedocs(sitename = "Robustbase",
     format = Documenter.HTML(),
