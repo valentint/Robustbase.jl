@@ -72,6 +72,7 @@ using Test
 
         end
         @testset "Covariance" begin
+            using Random
             ## CovMcd
             Random.seed!(1234)
             mcd = CovMcd();
