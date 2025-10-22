@@ -71,5 +71,33 @@ using Test
             @test isapprox(mad3, 1.92738, atol=1e-6)
 
         end
+        @testset "Covariance" begin
+            ## CovMcd
+            Random.seed!(1234)
+            mcd = CovMcd();
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [1.558333,  1.803333,  1.66], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
+
+            ## Test partitions
+            Random.seed!(1234)
+            dd = randn(1000, 3)
+            mcd=CovMcd(); 
+            fit!(mcd, dd);
+            @test isapprox(location(mcd), [-0.038419585680912825, -0.03938142931173428, 0.022486439975605767])
+            @test isapprox(covariance(mcd), [1.0813375447928146 -0.020273018671691848 0.030248650556126883; -0.020273018671691848 0.961712535610532 0.05609883142210195; 0.030248650556126883 0.05609883142210195 0.9635930203222962])
+
+            ## DetMcd
+            mcd = DetMcd();
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [1.537705,  1.780327,  1.686885], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.220897 0.054737  0.126544; 0.054737 1.2427021 0.151783; 0.126544  0.151783   1.154143], atol=1e-6)
+
+            ## CovOgk
+            mcd = CovOgk();
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [1.560054, 2.223452, 2.120345], atol=1e-6)
+            @test isapprox(covariance(mcd), [3.3574998 0.5874489 0.699388; 0.587449 2.0926801 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
+        end
     end
  
