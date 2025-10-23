@@ -82,9 +82,9 @@ using Test
         @testset "Covariance" begin
             ## CovClassic
             cc = CovClassic();
-            cc
+            display(cc)
             fit!(cc, hbk[:,1:3])
-            cc
+            display(cc)
             @test isapprox(location(cc), [3.206667, 5.597333, 7.230667], atol=1e-6)
             @test isapprox(covariance(cc), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
 
@@ -118,7 +118,7 @@ using Test
                 @test sprint(showerror, err) == "Model is not fitted yet!"
             end
 
-            mcd
+            display(mcd)
             let err = nothing
                 try
                     dd_plot(mcd)
@@ -129,7 +129,7 @@ using Test
             end
 
             fit!(mcd, hbk[:,1:3]);
-            mcd
+            display(mcd)
             dd_plot(mcd)
             @test isapprox(location(mcd), [1.558333,  1.803333,  1.66], atol=1e-6)
             @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
@@ -145,15 +145,17 @@ using Test
 
             ## DetMcd
             mcd = DetMcd();
+            display(mcd)
             fit!(mcd, hbk[:,1:3]);
-            mcd
+            display(mcd)
             @test isapprox(location(mcd), [1.537705,  1.780327,  1.686885], atol=1e-6)
             @test isapprox(covariance(mcd), [1.220897 0.054737  0.126544; 0.054737 1.2427021 0.151783; 0.126544  0.151783   1.154143], atol=1e-6)
 
             ## CovOgk
             mcd = CovOgk();
+            display(mcd)
             fit!(mcd, hbk[:,1:3]);
-            mcd
+            display(mcd)
             @test isapprox(location(mcd), [1.560054, 2.223452, 2.120345], atol=1e-6)
             @test isapprox(covariance(mcd), [3.3574998 0.5874489 0.699388; 0.587449 2.0926801 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
         end
