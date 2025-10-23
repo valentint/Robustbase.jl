@@ -80,12 +80,57 @@ using Test
 
         end
         @testset "Covariance" begin
-            using Random
+            ## CovClassic
+            cc = CovClassic();
+            cc
+            fit!(cc, hbk[:,1:3])
+            cc
+            @test isapprox(location(cc), [3.206667, 5.597333, 7.230667], atol=1e-6)
+            @test isapprox(covariance(cc), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
+
             ## CovMcd
+            using Random
             Random.seed!(1234)
             mcd = CovMcd();
+
+            let err = nothing
+                try
+                  location(mcd)  
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Model is not fitted yet!"
+            end
+            let err = nothing
+                try
+                  covariance(mcd)  
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Model is not fitted yet!"
+            end
+            let err = nothing
+                try
+                  correlation(mcd)  
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Model is not fitted yet!"
+            end
+
             mcd
+            let err = nothing
+                try
+                    dd_plot(mcd)
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Model is not fitted yet!"
+            end
+
             fit!(mcd, hbk[:,1:3]);
+            mcd
+            dd_plot(mcd)
             @test isapprox(location(mcd), [1.558333,  1.803333,  1.66], atol=1e-6)
             @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
             @test isapprox(correlation(mcd), [1.0 0.019591  0.141896; 0.019591 1.0 0.166480; 0.141896 0.166480 1.0], atol=1e-6)

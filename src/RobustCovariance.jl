@@ -168,7 +168,7 @@ function fit!(model::RobustCovariance, X::Union{Matrix{Float64}, DataFrame})
 end
 
 function dd_plot(model::RobustCovariance; chi2_percentile::Float64=0.975, id_n=nothing, figsize=(400, 400))
-    if isnothing(model.covariance_)
+    if isnothing(model.covariance_) || length(model.covariance_) == 0
         error("Model is not fitted yet!")
     end
 
