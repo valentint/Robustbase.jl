@@ -135,6 +135,12 @@ using Test
             @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
             @test isapprox(correlation(mcd), [1.0 0.019591  0.141896; 0.019591 1.0 0.166480; 0.141896 0.166480 1.0], atol=1e-6)
 
+            ## CovMcd raw estimates only
+            mcd = CovMcd(reweighting=false);
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [1.533333, 2.456410, 1.607692], atol=1e-6)
+            @test isapprox(covariance(mcd), [2.817004 0.011009 0.514713; 0.011009 0.890833 0.431404; 0.514713 0.431404 2.156541], atol=1e-6)
+
             ## Test partitions
             Random.seed!(1234)
             dd = randn(1000, 3)
@@ -151,6 +157,12 @@ using Test
             @test isapprox(location(mcd), [1.537705,  1.780327,  1.686885], atol=1e-6)
             @test isapprox(covariance(mcd), [1.220897 0.054737  0.126544; 0.054737 1.2427021 0.151783; 0.126544  0.151783   1.154143], atol=1e-6)
 
+            ## DetMcd raw estimates only
+            mcd = DetMcd(reweighting=false);
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [1.610256, 2.394872, 1.674359], atol=1e-6)
+            @test isapprox(covariance(mcd), [2.939714 -0.069041 1.014486; -0.069041 0.913458 0.195346; 1.014486 0.195346 2.143247], atol=1e-6)
+
             ## CovOgk
             mcd = CovOgk();
             display(mcd)
@@ -158,6 +170,12 @@ using Test
             display(mcd)
             @test isapprox(location(mcd), [1.560054, 2.223452, 2.120345], atol=1e-6)
             @test isapprox(covariance(mcd), [3.3574998 0.5874489 0.699388; 0.587449 2.0926801 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
+
+            ## CovOgk raw estimates only
+            mcd = CovOgk(reweighting=false);
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [1.560054, 2.223452, 2.120345], atol=1e-6)
+            @test isapprox(covariance(mcd), [3.3574998 0.587449 0.699388; 0.587449 2.092680 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
         end
     end
  
