@@ -922,7 +922,7 @@ mutable struct CovOgk <: RobustCovariance
         location_estimator::Function=median,
         scale_estimator::Function=MAD_scale,
         n_iterations::Int=2,
-        reweighting::Bool=false,
+        reweighting::Bool=true,
         reweighting_beta::Float64=0.9
     )
         return new(store_precision, assume_centered, location_estimator, scale_estimator, 

@@ -168,8 +168,8 @@ using Test
             display(mcd)
             fit!(mcd, hbk[:,1:3]);
             display(mcd)
-            @test isapprox(location(mcd), [1.560054, 2.223452, 2.120345], atol=1e-6)
-            @test isapprox(covariance(mcd), [3.3574998 0.5874489 0.699388; 0.587449 2.0926801 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
+            @test isapprox(location(mcd), [1.513333, 1.808333, 1.701667], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.114395 0.093955 0.141672; 0.0939548 1.1231497 0.117444; 0.141672 0.117444 1.0747429], atol=1e-6)
 
             ## CovOgk raw estimates only
             mcd = CovOgk(reweighting=false);
