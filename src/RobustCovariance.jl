@@ -283,12 +283,12 @@ function _get_h(alpha::Union{Nothing, Float64, Int}, X::Matrix{Float64})::Int
         ret = h_alpha_n(0.5, size(X, 1), size(X, 2))
         # model.alpha = round(ret/size(X, 1), sigdigits=2)
         return ret
-    elseif alpha isa Int && (size(X, 1) ÷ 2 <= alpha <= size(X, 1))
+    elseif alpha isa Int && (div(size(X, 1), 2) <= alpha <= size(X, 1))
         return alpha
     elseif (alpha isa Float64 && (0.5 <= alpha <= 1)) || alpha == 1
         return h_alpha_n(alpha, size(X, 1), size(X, 2))
     else
-        error("Invalid alpha value: $(alpha). Must be between n/2 and n (integer) or between 0.5 and 1 (float).")
+        error("Invalid alpha value: $(alpha). Must be between n/2 and n (integer) or between 0.5 and 1 (float)!")
     end
 end
 
@@ -410,6 +410,10 @@ mutable struct CovMcd <: RobustCovariance
     function CovMcd(;assume_centered=false, alpha=nothing, n_initial_subsets=500, n_initial_c_steps=2,
         n_best_subsets=10, n_partitions=nothing, tolerance=1e-8,
         reweighting=true, verbosity=Logging.Warn)
+
+        if alpha isa Float64 && (0.5 > alpha || alpha >= 1)
+            error("Invalid alpha value: $(alpha). Must be between 0.5 and 1 (float)!")
+        end
 
         new(alpha, n_initial_subsets, n_initial_c_steps, n_best_subsets, 
         n_partitions, tolerance, reweighting, verbosity, assume_centered,

@@ -153,6 +153,47 @@ using Test
             @test isapprox(location(mcd), [3.2066667, 5.597333, 7.230667], atol=1e-6)
             @test isapprox(covariance(mcd), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
 
+            ## Test different values of alpha
+            let err = nothing
+                try
+                    mcd = CovMcd(alpha=0.2);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Invalid alpha value: 0.2. Must be between 0.5 and 1 (float)!"
+            end
+            let err = nothing
+                try
+                    mcd = CovMcd(alpha=1.2);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Invalid alpha value: 1.2. Must be between 0.5 and 1 (float)!"
+            end
+            let err = nothing
+                try
+                    mcd = CovMcd(alpha=35);
+                    fit!(mcd, hbk[:,1:3])
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Invalid alpha value: 35. Must be between n/2 and n (integer) or between 0.5 and 1 (float)!"
+            end
+            ## OK: alpha=0.5 (the default for alpha=nothing)
+            mcd = CovMcd(alpha=0.5);
+            fit!(mcd, hbk[:,1:3])
+            @test isapprox(location(mcd), [1.558333,  1.803333,  1.66], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
+            @test isapprox(correlation(mcd), [1.0 0.019591  0.141896; 0.019591 1.0 0.166480; 0.141896 0.166480 1.0], atol=1e-6)
+
+            ## OK: alpha=h=39 (the default for alpha=nothing or alpha=0.5)
+            mcd = CovMcd(alpha=39);
+            fit!(mcd, hbk[:,1:3])
+            @test isapprox(location(mcd), [1.558333,  1.803333,  1.66], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
+            @test isapprox(correlation(mcd), [1.0 0.019591  0.141896; 0.019591 1.0 0.166480; 0.141896 0.166480 1.0], atol=1e-6)
+
+
             ## Test partitions
             Random.seed!(1234)
             dd = randn(1000, 3)
