@@ -141,6 +141,18 @@ using Test
             @test isapprox(location(mcd), [1.533333, 2.456410, 1.607692], atol=1e-6)
             @test isapprox(covariance(mcd), [2.817004 0.011009 0.514713; 0.011009 0.890833 0.431404; 0.514713 0.431404 2.156541], atol=1e-6)
 
+            ## CovMcd with 1D
+            mcd = CovMcd();
+            fit!(mcd, hbk[:,1]);
+            @test isapprox(location(mcd), [1.537705], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.329914;;], atol=1e-6)
+
+            ## CovMcd with alpha=1
+            mcd = CovMcd(alpha=1);
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [3.2066667, 5.597333, 7.230667], atol=1e-6)
+            @test isapprox(covariance(mcd), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
+
             ## Test partitions
             Random.seed!(1234)
             dd = randn(1000, 3)
@@ -163,6 +175,18 @@ using Test
             @test isapprox(location(mcd), [1.610256, 2.394872, 1.674359], atol=1e-6)
             @test isapprox(covariance(mcd), [2.939714 -0.069041 1.014486; -0.069041 0.913458 0.195346; 1.014486 0.195346 2.143247], atol=1e-6)
 
+            ## DetMcd with 1D
+            mcd = DetMcd();
+            fit!(mcd, hbk[:,1]);
+            @test isapprox(location(mcd), [1.537705], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.329914;;], atol=1e-6)
+
+            ## DetMcd with alpha=1
+            mcd = DetMcd(alpha=1);
+            fit!(mcd, hbk[:,1:3]);
+            @test isapprox(location(mcd), [3.2066667, 5.597333, 7.230667], atol=1e-6)
+            @test isapprox(covariance(mcd), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
+
             ## CovOgk
             mcd = CovOgk();
             display(mcd)
@@ -176,6 +200,13 @@ using Test
             fit!(mcd, hbk[:,1:3]);
             @test isapprox(location(mcd), [1.560054, 2.223452, 2.120345], atol=1e-6)
             @test isapprox(covariance(mcd), [3.3574998 0.587449 0.699388; 0.587449 2.092680 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
+
+            ## CovOgk with 1D
+            mcd = CovOgk();
+            fit!(mcd, hbk[:,1]);
+            @test isapprox(location(mcd), [1.537705], atol=1e-6)
+            @test isapprox(covariance(mcd), [1.132055;;], atol=1e-6)
+
         end
     end
  

@@ -25,8 +25,10 @@ end
 
 ## abstract type CovarianceEstimator end - from StatsBase
 
-function fit!(model::CovarianceEstimator, X::Union{Matrix{Float64}, DataFrame})
-    if X isa DataFrame
+function fit!(model::CovarianceEstimator, X::Union{Matrix{Float64}, Vector{Float64}, DataFrame})
+    if X isa Vector{Float64}
+        X = reshape(X, (:,1))
+    elseif X isa DataFrame
         X = Matrix(X)
     end
 
@@ -254,7 +256,7 @@ function _get_subset(indices::Vector{Int}, X::Matrix{Float64}; n_c_steps::Int=0)
 end
 
 """
-    h_alpha_n(alpha::Float64, n::Int, p::Int)::Int 
+    h_alpha_n(alpha::Union{Float64, Int}, n::Int, p::Int)::Int  
 
 Compute h(alpha) which is the size of the subsamples to be used for MCD and LTS. 
 Given alpha, n and p, h is an integer, h approx alpha n, where the 
@@ -263,7 +265,7 @@ exact formula also depends on p.
 For alpha = 1/2, h == floor(n+p+1)/2.
 For the general case, it's simply n2 = div(n+p+1, 2); floor(2 * n2 - n + 2 * (n-n2) * alpha).
 """
-function h_alpha_n(alpha::Float64, n::Int, p::Int)::Int 
+function h_alpha_n(alpha::Union{Float64, Int}, n::Int, p::Int)::Int 
     ## Compute h(alpha) := size of subsample, given alpha, (n,p)
     ## Same function for covMcd() and ltsReg()
     n2 = div(n+p+1, 2)
@@ -421,7 +423,8 @@ function Base.show(io::IO, mime::MIME"text/plain", obj::CovMcd)
         println()
         println("Model is not fitted yet!")
     else
-        println(stdout, "-> Method:  Fast MCD Estimator: (alpha=", obj.alpha, " ==> h=", obj.quan, ")")
+        alpha = if(obj.alpha == nothing) 0.5 else obj.alpha end
+        println(stdout, "-> Method:  Fast MCD Estimator: (alpha=", alpha, " ==> h=", obj.quan, ")")
         println()
         println(io, "Robust estimate of location:")
         println(IOContext(stdout, :compact=>true), location(obj))
@@ -439,6 +442,7 @@ function calculate_covariance!(model::CovMcd, X::Matrix{Float64})
         @warn "Default covariance is returned as alpha is $(alpha)."
         model.location_ = mean(X, dims=1)[:]
         model.covariance_ = cov(X, dims=1)
+        model.quan = n
         return model
     end
 
@@ -659,7 +663,8 @@ function Base.show(io::IO, mime::MIME"text/plain", obj::DetMcd)
         println()
         println("Model is not fitted yet!")
     else
-        println(stdout, "-> Method:  Deterministic MCD: (alpha=", obj.alpha, " ==> h=", obj.quan, ")")
+        alpha = if(obj.alpha == nothing) 0.5 else obj.alpha end
+        println(stdout, "-> Method:  Deterministic MCD: (alpha=", alpha, " ==> h=", obj.quan, ")")
         println()
         println(io, "Robust estimate of location:")
         println(IOContext(stdout, :compact=>true), location(obj))
@@ -678,6 +683,7 @@ function calculate_covariance!(model::DetMcd, X::Matrix{Float64})
         @warn "Default covariance is returned as alpha is $alpha."
         model.location_ = mean(X, dims=1)[:]
         model.covariance_ =  cov(X, dims=1)
+        model.quan = n
         return model
     end
 
