@@ -2,10 +2,8 @@
 
 [![Build Status](https://github.com/valentint/Robustbase.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/valentint/Robustbase.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![codecov.io](http://codecov.io/github/valentint/Robustbase.jl/coverage.svg?branch=main)](http://codecov.io/github/valentint/Robustbase.jl?branch=main)
+<!--[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint/Robustbase.jl/stable)-->
 [![Doc](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase.jl/dev/)
-
-[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint/Robustbase.jl/stable)
-[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase.jl/dev)
 
 <!-- ![](README-logo.png) -->
 
