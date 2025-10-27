@@ -8,29 +8,53 @@
 
 The package `Robustbase` provides "Essential" Robust Statistics - tools allowing to analyze data with robust methods: univariate methods, multivariate statistics and regression. We strive to cover the book "Robust Statistics, Theory and Methods (with R)" by 'Maronna, Martin, Yohai and Salibian-Barrera'; Wiley 2019. The package is based on the R packages `robustbase` and `rrcov`.
 
-# Univariate statistics
-The classical methods for estimating the parameters of the model may be
-affected by outliers. Let's have the following 10 observations. 
-The usual way to summarize them is 
-to calculate the arithmetic mean (10.49) and the standard deviation (1.68).
-If we remove the last observaion (which is visibly quite apart of the rest of the data)
-we get for the mean 9.97 and for the standard deviation 0.27. Alternatively, if we compute 
-the median, a simple robust location estimate, of all the data and the interquartile range (IQR), 
-a robust estimate of the standard deviation, we get 9.98 and 0.17 respectively. 
-(Note: Since we expect normally distributed data $x$, for the IQR we use the `iqr()` function from 
-`StatsBase` divided by 1.349, i.e. IQRN). Computing the median and IQRN for the first 9 observations gives: 9.98 and 0.13 respectively which is quite close to the estimates using all 10 observations.
-Another estimator of the scale is the median absolute deviation given by $MAD(X) = med|x_i−med(X)|$
-(multiplied by 1.4833 if we want the MAD to be consistent for the standard deviation at
-normally distributed data) - we have 0.21 and 0.18 for all the dat and only 
-the 9 regular observations respectively. More examples are given in the table below.
+## Installation
 
+The package Robustbase can be installed using the Julia REPL as follows
+
+```
+julia> ]
+(@v1.12) pkg> add Robustbase
+```
+
+or
+
+```
+julia> using Pkg
+julia> Pkg.add("Robustbase")
+```
+
+and then
+
+```
+julia> using Robustbase
+```
+to make it available to the user.
+
+## Documentation
+Please check out the reference manual [here](https://valentint.github.io/Robustbase.jl/dev/).
+
+## Functionalities
+
+### 1. Univariate statistics
+The univariate module contains several univariate location and scale estimators. 
+They all implement the abstract base class `RobustScale`, which has
+the properties `location` and `scale` and can be fitted using the `fit!` method. Each 
+class is expected to implement a `_calculate` method where the attributes `scale_` and
+`location_` are set.
+All functions have matrix versions which can be called on a matrix or a data frame
+specifying the required dimension on which to do the calculations.
+
+#### Example 
+Let's have the following 10 observations. The classical methods for estimating 
+the parameters of the model, the arithmetic mean and standard deviation, may be
+affected by outliers.
 ```julia
 x = [9.52, 9.68, 10.16, 9.96, 10.08, 9.99, 10.47, 9.91, 9.92, 15.21]
 mean(x)
 std(x)
 ```
-
-|               |All 10 observations| Only 9 regular observations |
+|Estimator      |All 10 observations| Only 9 regular observations |
 |---------------|:-----------------:|:---------------------------:|
 |$\bar x_n$     |10.49              |9.97                         |
 |$median$       |9.98               |9.96                         |
@@ -42,89 +66,7 @@ std(x)
 |$\tau-scale$   |0.28               |0.22                         |
 |$Q_n-scale$    |0.37               |0.31                         |
  
-The univariate module contains several robust univariate location and scale estimators. 
-They all implement the abstract base class `RobustScale`, which has
-the properties `location` and `scale` and can be fitted using the `fit!` method. Each 
-class is expected to implement a `_calculate` method where the attributes `scale_` and
-`location_` are set.
-
-Let us have a univariate dataset $X = \{x_1, \ldots , x_n\}$ of size $n$. As we saw above, 
-a simple location estimator is the median of the dataset $med(X)$, and the scale
-can be estimated by the median absolute deviation. 
-A simple class that uses the median for location and
-the MAD for scale would look like this:
-```
-using Statistics
-mutable struct MAD <: RobustScale
-    can_handle_nan::Bool
-    location_::Union{Nothing, Float64}
-    scale_::Union{Nothing, Float64}
-
-    function MAD(; can_handle_nan::Bool = false)
-        new(can_handle_nan, nothing, nothing)
-    end
-end
-
-function _calculate!(rs::MAD, X::Vector{Float64})
-    med = median(X)
-    madtemp = median(abs.(X .- med)) * 1.4826  # Scale factor for normal consistency
-    rs.location_ = med
-    rs.scale_ = madtemp
-end
-```
-This estiamtor can be used as follows:
-```
-using Random
-Random.seed!(1234)
-x = randn(10)
-mad = MAD();
-_calculate!(mad, x);
-location(mad)
-##  0.3689500229232851
-scale(mad)
-## 1.164914811753848
-```
-All functions have matrix versions which can be called on a matrix or a data frame
-specifying the required dimension on which to do the calculations.
-```
-using Random
-Random.seed!(1234)
-x = randn(10,3)
-
-Tau_location(x)         # columnwise Tau-location
-Tau_location(x, dims=2) # rowwise Tau-location
-Tau_scale(x)            # columnwise Tau-scale
-Tau_scale(x, dims=2)    # rowwise Tau-scale
-Qn_scale(x)             # columnwise Qn-scale
-Qn_scale(x, dims=2)     # rowwise Qn-scale
-```
-
-## Qn robust estimator
-One of the scale estiamtors included in the package is 
-the `Qn` scale estimator of Rousseeuw and Croux (1993). 
-It is defined as the first Quartile of the distances 
-between the points. This can be written as follows, 
-```math
-Qn = 2.219\{|x_i-x_j|:i<j\}_{(k)}
-```
-with $k=\left(\frac{h}{2}\right)$ for $h=\lfloor\frac{n}{2}\rfloor + 1$. 
-It has much better statistical efficiency than the MAD, and is computed by the fast algorithm
-of Croux and Rousseeuw (1992).
-
-## Tau location and scale estimator
-Another scale estimator included in the package is the $\tau$-estimator from Maronna and Yohai (1992).
-It is a special case of the one-step M-estimators given by
-```math
-\tau_{location} = \frac{\sum_i{w_ix_i}}{\sum_i{w_i}} \text{~~~and~~~} 
-\tau_{scale} = \sqrt{\frac{MAD^2(X)}{n} \sum_i{\rho_{c2}} \left(\frac{x_i-\tau_{location}}{MAD(X)} \right)} 
-```
-where the weights $w_i$ are defined as
-```math
-w_i = W_{c1} \left( \frac{x_i-med(X)}{MAD(X)} \right) \text{~~~with~~~} W_c(u)=\left( 1-\left(\frac{u}{c} \right)^2\right)^2 I(|u| \le c)
-```
-and $\rho_c(u) = min(c^2, u^2)$. The default values are $c_1 = 4.5$ and $c_2 = 3$, but different values
-can be provided to the constructor of the `Tau` object.
-# Covariance
+### 2. Covariance
 Similarly as in the univariate case outliers can influence the 
 estimators of multivariate data, these are in first line the 
 multivariate location and covariance esimators. Apart from 
@@ -151,7 +93,7 @@ The plot is drawn by the `dd_plot()` function
 function, after obtaining a robust covariance estimator by the `fit!()` 
 method.
 
-### Example
+#### Example
 
 ```{julia}
 mcd = CovMcd();
@@ -173,11 +115,34 @@ Robust estimate of covariance:
 ```
 ![](dd_plot.png)<!-- -->
 
+### 3. Data sets
+`Robustbase` includes several datasets that are often used in the robustness literature.
+These datasets serve as standard examples and benchmarks, allowing users to easily test
+robust algorithms. They are also available in the R-packages `robustbase` and `rrcov`.
 
-# Regression
+### 4. Further development
+- Add S- and MM-estimators of multivariate location and covariance matrix
+- Add regression analysis: Least Trimmed Squares regression
+- Add Principal component analysis
+- Add Discriminant analysis
 
-Not yet implemented
+## Community guidelines
 
-# Principal Component Analysis
+### Report issues and request features
 
-Not yet implemented
+If you experience any bugs or issues or if you have any suggestions for
+additional features, please submit an issue via the
+[*Issues*](https://github.com/valentint/Robustbase/issues) tab of this
+repository. Please have a look at existing issues first to see if your
+problem or feature request has already been discussed.
+
+### Contribute to the package
+
+If you want to contribute to the package, you can fork this repository
+and create a pull request after implementing the desired functionality.
+
+### Ask for help
+
+If you need help using the package, or if you are interested in
+collaborations related to this project, please get in touch with the
+package maintainer.
