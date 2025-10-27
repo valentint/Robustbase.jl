@@ -4,7 +4,7 @@
 [![codecov.io](http://codecov.io/github/valentint/Robustbase.jl/coverage.svg?branch=main)](http://codecov.io/github/valentint/Robustbase.jl?branch=main)
 [![Doc](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase.jl/dev/)
 
-![](README-logo.png)<!-- -->
+<!-- ![](README-logo.png) -->
 
 The package `Robustbase` provides "Essential" Robust Statistics - tools allowing to analyze data with robust methods: univariate methods, multivariate statistics and regression. We strive to cover the book "Robust Statistics, Theory and Methods (with R)" by 'Maronna, Martin, Yohai and Salibian-Barrera'; Wiley 2019. The package is based on the R packages `robustbase` and `rrcov`.
 
@@ -129,12 +129,12 @@ Similarly as in the univariate case outliers can influence the
 estimators of multivariate data, these are in first line the 
 multivariate location and covariance esimators. Apart from 
 being useful for outlier detection through computing the Mahalanobis distances,
-they are cornerstones of many other multivariate mmethods 
+they are cornerstones of many other multivariate methods 
 like principal component analysis and discriminant analysis.
 The most popular robust estimator of multivariate location 
 and covariance is the Minimum Covariance Determinant (MCD) 
-estimator of Rousseeuw (1084) which is widely used after  
-the fast algorithm of Rousseeuw and van Driessen (1999) became 
+estimator of Rousseeuw (1084) which is widely used 
+after the fast algorithm of Rousseeuw and van Driessen (1999) became 
 available. A faster version of the MCD is the deterministic MCD of 
 Hubert, Rousseeuw and Verdonck (2012) which instead of doing 
 time consuming resampling starts from six rough robust 
@@ -150,29 +150,6 @@ distances, and is equipped with thresholds for outlier detection.
 The plot is drawn by the `dd_plot()` function
 function, after obtaining a robust covariance estimator by the `fit!()` 
 method.
-## Minimum Covariance Determinant (MCD) estimator
-The Minimum Covariance Determinant (MCD) estimator of Rousseeuw
-(1984) seeks for the h-subset whose empirical covariance matrix 
-has the lowest determinant. When such subset is found (through resamling)
-the MCD estimator is calculated as 
-```math
-\mathbf{\mu}_{MCD} = \frac{1}{h}\sum_{x_i \in H}{\mathbf{x}_i}
-```
-```math
-\mathbf{\Sigma}_{MCD} = \frac{1}{h-1}\sum_{x_i \in H}{(\mathbf{x}_i - \mathbf{\mu}_{MCD})(\mathbf{x}_i - \mathbf{\mu}_{MCD})^{\top}}
-```
-The estimated scatter matrix $\mathbf{\Sigma}_{MCD}$ is often multiplied by a correction factor to make it
-consistent when the data come from a normal distribution without outliers (Pison et al., 2002).
-
-The FastMCD algorithm for computing the MCD (Rousseeuw and Van Driessen, 1999)
-starts from a fixed number `n_initial_subsets` of random initial subsets. 
-To each of them it applies so-called concentration steps (C-steps) that 
-always lowers the determinant, and it keeps the fit with the lowest determinant.
-
-The algorithm has an argument $\alpha, 0.5 \le \alpha, \le 1$, 
-which sets $h$ equal to $\alpha \times n$. 
-In practice, the raw MCD is almost always followed by a reweighting step 
-to increase its efficiency.
 
 ### Example
 
@@ -196,35 +173,6 @@ Robust estimate of covariance:
 ```
 ![](dd_plot.png)<!-- -->
 
-## Deterministic MCD
-A second approach for computing the MCD estimator is the so called deterministic MCD 
-which is implemented as `DetMcd`. It is based on the deterministic algorithm of 
-Hubert et al. (2012). This algorithm is faster because it starts from only six 
-carefully selected preliminary scatter estimators, each of them followed 
-by C-steps until convergence. 
-As the Fast MCD, this algorithm has an argument `alpha` and is almost always
-followed by a reweighting step to increase its efficiency.
-## Orthogonalized Gnanadesikan-Kettenring (OGK) estimator
-The MCD estimator and all other known affine equivariant high-breakdown point estimators
-are solutions to a highly non-convex optimization problem and as such pose a serious computational
-challenge. Much faster estimates with high breakdown point can be computed if one
-gives up the requirements of affine equivariance of the covariance matrix. Such an algorithm
-was proposed by Maronna and Zamar (2002) which is based on the very simple robust bivariate
-covariance estimator $s_{jk}$ proposed by Gnanadesikan and Kettenring (1972) and studied
-by Devlin et al. (1981). For a pair of random variables $Y_j$ and $Y_k$
-and a standard deviation function $\sigma()$, $s_{jk}$ is defined as
-```math
-s_{jk}=\frac{1}{4}\left(\sigma \left(\frac{Y_j}{\sigma(Y_j)}+\frac{Y_k}{\sigma(Y_k)}\right)^2 -
-\sigma \left(\frac{Y_j}{\sigma(Y_j)}-\frac{Y_k}{\sigma(Y_k)}\right)^2\right).
-```
-If a robust function is chosen for $\sigma()$ then $s_{jk}$ is also
-robust and an estimate of the covariance matrix can be obtained by
-computing each of its elements $s_{jk}$ for each $j=1,\ldots,p$ and
-$k=1,\ldots,p$ using the above equation. This estimator does
-not necessarily produce a positive definite matrix (although
-symmetric) and it is not affine equivariant.
-Maronna and Zamar (2002) propose several steps to overcome the lack of positive definiteness.
-Similarly as for the MCD estimator a one-step reweighting can be performed.
 
 # Regression
 
