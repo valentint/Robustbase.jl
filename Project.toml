@@ -1,6 +1,6 @@
 name = "Robustbase"
 uuid = "1786b160-9db0-4122-8bd2-4c7456afcf2f"
-version = "1.0.0-DEV"
+version = "0.1.0"
 authors = ["Valentin Todorov <valentin@todorov.at> and contributors"]
 
 [deps]
