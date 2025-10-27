@@ -1,4 +1,4 @@
-using Documenter, .Robustbase
+using Documenter, Robustbase
 
 makedocs(sitename = "Robustbase",
     format = Documenter.HTML(),
