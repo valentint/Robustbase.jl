@@ -70,10 +70,8 @@ Computes the robust τ-estimate of univariate scale, as proposed by Maronna and 
 # Examples
 ```julia
 julia> x = hbk[:,1];
-
 julia> tau = Tau();
-julia> fit!(tau, x)
-
+julia> fit!(tau, x);
 julia> location(tau)
 1.5554543865072337
 
