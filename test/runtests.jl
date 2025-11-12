@@ -64,10 +64,10 @@ using Test
 
             ##  Qn matrix version
             qn1 = Qn_scale(Matrix(hbk));
-            ##  qn2 = Qn_scale(Matrix(hbk), dims=2);    #!! Hangs for ever - FIXME!!!
+            qn2 = Qn_scale(Matrix(hbk), dims=2);    #!! Hangs for ever - FIXME!!!
             qn3 = Qn_scale(hbk[:,1]);
             @test isapprox(qn1, [1.742783, 1.742783, 1.524935, 0.871392], atol=1e-6)
-            ##  @test isapprox(qn2[[1,2,3,75]], [8.196243, 8.487519, 8.861269, 0.172557], atol=1e-6)
+            @test isapprox(qn2[[1,2,3,75]], [8.196243, 8.487519, 8.861269, 0.172557], atol=1e-6)
             @test isapprox(qn3, 1.742784, atol=1e-6)
 
             ##  MAD matrix version

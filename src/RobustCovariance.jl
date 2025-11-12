@@ -390,6 +390,8 @@ mutable struct CovMcd <: RobustCovariance
     reweighting::Bool
     verbosity::Base.CoreLogging.LogLevel
     assume_centered::Bool
+    nmini::Int
+    kmini::Int
     nobs::Int
     quan::Int
     best::Vector{Int}
@@ -416,7 +418,7 @@ mutable struct CovMcd <: RobustCovariance
         end
 
         new(alpha, n_initial_subsets, n_initial_c_steps, n_best_subsets, 
-        n_partitions, tolerance, reweighting, verbosity, assume_centered,
+        n_partitions, tolerance, reweighting, verbosity, assume_centered, 300, 5, 
         0, 0, [], 0, [], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [])
     end
 end
@@ -453,7 +455,7 @@ function calculate_covariance!(model::CovMcd, X::Matrix{Float64})
     h = model.quan = _get_h(model.alpha, X)
     # @info "Called _get_h() from calculate_covariance(): h=", h, "alpha=", model.alpha
     partitions = _partition_data(model, X)
-    # @info "Partitioned data into $(length(partitions)) partitions"
+    @info "Partitioned data into $(length(partitions)) partitions"
     n_initial_subsets = div(model.n_initial_subsets, length(partitions))
 
     best_subsets = HSubset[]
@@ -537,9 +539,53 @@ end
 Splits the data into partitions if necessary (n > 600).
 """
 function _partition_data(model::CovMcd, X::Matrix{Float64})::Vector{Matrix{Float64}}
+    
+    n = size(X, 1)
+    if n < 2 * model.nmini      # i.e. less than 600
+        return [X]
+    end
+    nmini = model.nmini
+    kmini = model.kmini
+    ngroup = fld(n, nmini)
+
+    if ngroup < kmini
+        mm = fld(n, ngroup)
+        r = n - ngroup * mm
+        jj = ngroup - r
+        mini = vcat(fill(mm, jj), fill(mm+1, ngroup-jj))
+        minigr = ngroup * mm + r
+    else
+        ngroup = kmini
+        mini = fill(nmini, kmini)
+        minigr = kmini * nmini
+    end
+
+    id = randperm(n)[1:minigr]
+
+    # Step 1: Create zero-copy views
+    parts_views = Vector{SubArray}(undef, ngroup)
+    kk = 1
+    for i in 1:ngroup
+        inds = id[kk:(kk + mini[i] - 1)]
+        parts_views[i] = @view X[inds, :]
+        kk += mini[i]
+    end
+
+    # Step 2: Materialize copies → now type is Vector{Matrix}
+    return [Matrix(v) for v in parts_views]
+end
+
+#=
+This is the old version, as in Python,  which does not work!
+It takes always 5 groups (if n >= 600) and almost always remain several observations
+(the rest of the divisin of n by 5) in a 6-th partition.
+ 
+function _partition_data(model::CovMcd, X::Matrix{Float64})::Vector{Matrix{Float64}}
     n_partitions = isnothing(model.n_partitions) ? (size(X, 1) > 600 ? 5 : 1) : model.n_partitions
     return [X[i:min(i+div(size(X,1), n_partitions)-1, size(X,1)), :] for i in 1:div(size(X,1), n_partitions):size(X,1)]
 end
+=#
+
 
 """
 Repeatedly applies the C-step (n_iterations times).

@@ -237,67 +237,21 @@ function set_h_size(alpha::Union{Float64, Int, Nothing}, n::Int)
 end
 
 """
-    weighted_median(X::Vector{Float64}, weights::Vector{Float64})
-
-    Computes a weighted median.
-
-### References
-    Time-efficient algorithms for two highly robust estimators
-    of scale, Christophe Croux and Peter J. Rousseeuw (1992)
-"""
-function weighted_median(X::Vector{Float64}, weights::Vector{Float64})
-    if length(X) != length(weights)
-        throw(ArgumentError("X and weights must have the same length"))
-    end
-
-    n = length(X)
-    wrest = 0.0
-    wtotal = sum(weights)
-    Xcand = copy(X)
-    weightscand = copy(weights)
-
-    while true
-        k = ceil(Int, n / 2)
-        if n > 1
-            trial = maximum(partialsort(Xcand, 1:k))
-        else
-            return Xcand[1]
-        end
-
-        wleft = sum(weightscand[Xcand .< trial])
-        wmid = sum(weightscand[Xcand .== trial])
-
-        if 2 * (wrest + wleft) > wtotal
-            mask = Xcand .< trial
-        elseif 2 * (wrest + wleft + wmid) > wtotal
-            return trial
-        else
-            mask = Xcand .> trial
-            wrest += wleft + wmid
-        end
-
-        Xcand = Xcand[mask]
-        weightscand = weightscand[mask]
-        n = length(Xcand)
-    end
-end
-
-"""
 Calculates the correction factor for the Qn estimator
-at small samples [Time-efficient algorithms for two highly robust estimators of scale,
+at small samples.
+[Time-efficient algorithms for two highly robust estimators of scale,
 Christophe Croux and Peter J. Rousseeuw (1992)].
 """
-function get_small_sample_dn(n::Int)
-    DNDICT = Dict(
-        2 => 0.399, 3 => 0.994, 4 => 0.512, 5 => 0.844,
-        6 => 0.611, 7 => 0.857, 8 => 0.669, 9 => 0.872
-    )
-    if n <= 9
-        return get(DNDICT, n, 1.0)
+function get_small_sample_cn(n::Int)
+    ndict = Dict(2 => 0.399356, 3 => 0.99365, 4 => 0.51321, 5 => 0.84401,
+                 6 => 0.61220,  7 => 0.85877, 8 => 0.66993, 9 => .87344,
+                 10 => 0.72014, 11 => 0.88906, 12 => 0.75743)
+    if n <= 12
+        return 1.0/get(ndict, n, 1.0)
     elseif isodd(n)
-        return n / (n + 1.4)
+        return (1.60188 +(-2.1284 - 5.172/n)/n)/n + 1   # n / (n + 1.4)
     end
-    return n / (n + 3.8)
+    return (3.67561 +( 1.9654 +(6.987 - 77/n)/n)/n)/n + 1       # n / (n + 3.8)
 end
 
 """
@@ -345,70 +299,62 @@ mutable struct Qn <: RobustScale
 end
 
 function _calculate!(q::Qn, X::Vector{Float64})
-    n = length(X)
-    h = div(n, 2) + 1
-    k = div(h * (h - 1), 2)
-    y = sort(X)
-    left = n .+ 2 .- (1:n)
-    right = fill(n, n)
-    jhelp = div(n * (n + 1), 2)
-    knew = k + jhelp
-    nL = jhelp
-    nR = n * n
-    found = false
-    Qn_val = NaN
-
-    while (nR - nL) > n && !found
-         weight = right .- left .+ 1
-        ##  println("nR, nL, weight: ", nR, ", ", nL, ", ", weight)
-        
-        jhelp = left .+ div.(weight, 2)
-        ##  println("jhelp: ", jhelp)
-
-        ## This is replacement for the Pythons negative indexes:
-        ##  i <= 0 ? a[end + i + 1] : a[i]
-
-        ## work = y .- y[n .- jhelp .+ 1]
-        indx = n .- jhelp .+ 1
-        for ix in 1:length(indx)
-            indx[ix] = indx[ix] <= 0 ? length(indx)-indx[ix] : indx[ix]
-        end
-        work = y .- y[indx]
-        trial = weighted_median(work, weight .+ 0.0)
-        P = searchsortedfirst.(Ref(-reverse(y)), trial .- y) .- 1
-        Q = searchsortedlast.(Ref(-reverse(y)), trial .- y) .+ 1
-
-        if knew <= sum(P)
-            right = P
-            nR = sum(P)
-        elseif knew > (sum(Q) - n)
-            left = Q
-            nL = sum(Q) - n
-        else
-            Qn_val = trial
-            found = true
-        end
+    x = sort(collect(X))
+    n = length(x)
+    if n == 0
+        return NaN
+    elseif n == 1
+        return 0.0
     end
 
-    if !found
-        work = Float64[]
-        for i in 2:n
-            if left[i] <= right[i]
-                for jj in Int(left[i]):Int(right[i])
-                    push!(work, y[i] - y[n - jj + 1])
-                end
+    """
+        k is typically half of n, specifying the "quantile", i.e., rather the order 
+        statistic that Qn() should return; for the Qn() proper, this has been hard 
+        wired to choose(n%/%2 +1, 2), i.e., floor(n/2) + 1. Choosing a large k is 
+        less robust but allows to get non-zero results in case the default Qn() is zero.
+
+        If k is the default, the consistency correction constant is 2.21914.
+    """
+    k = binomial(div(n, 2) + 1, 2)
+
+    ## count how many |x_i - x_j| ≤ d
+    function count_pairs_leq(d)
+        count = 0
+        j = 1
+        for i in 1:n
+            while j ≤ n && x[j] - x[i] ≤ d
+                j += 1
             end
+            count += j - i - 1
         end
-        k = Int(knew - nL)
-        Qn_val = maximum(partialsort(work, 1:k))
+        return count
     end
 
+    ## binary search for smallest distance where count ≥ k
+    lo = 0.0
+    hi = x[end] - x[1]
+    for _ in 1:60
+        mid = (lo + hi) / 2
+        if count_pairs_leq(mid) < k
+            lo = mid
+        else
+            hi = mid
+        end
+    end
+    q_raw = hi
+
+    cn = cc = 1.0
+    ## finite-sample correction factor
     if q.finite_correction
-        Qn_val *= get_small_sample_dn(n)
+        cn = get_small_sample_cn(n)
     end
+
+    ## conistency correction factor
     if q.consistency_correction
-        Qn_val *= 2.219144
+        cc = 2.21914
     end
+
+    Qn_val = cc * q_raw / cn
 
     q.scale_ = Qn_val
     q.location_ = q.location_func(X)
@@ -510,4 +456,3 @@ Compute the Tau location of a collection `X`
 function Tau_location(X::Vector{Float64})::Float64
     location(fit!(Tau(), X))
 end
-

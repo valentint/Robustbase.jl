@@ -1,8 +1,6 @@
 using Documenter
 using Robustbase
 
-##  DocMeta.setdocmeta!(Robustbase, :DocTestSetup, :(using Robustbase); recursive=true)
-
 makedocs(sitename = "Robustbase",
     format = Documenter.HTML(),
     modules = [Robustbase],
