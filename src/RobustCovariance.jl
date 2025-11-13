@@ -453,9 +453,9 @@ function calculate_covariance!(model::CovMcd, X::Matrix{Float64})
     end
 
     h = model.quan = _get_h(model.alpha, X)
-    # @info "Called _get_h() from calculate_covariance(): h=", h, "alpha=", model.alpha
+    ## @info "Called _get_h() from calculate_covariance(): h=", h, "alpha=", model.alpha
     partitions = _partition_data(model, X)
-    @info "Partitioned data into $(length(partitions)) partitions"
+    ##  @info "Partitioned data into $(length(partitions)) partitions"
     n_initial_subsets = div(model.n_initial_subsets, length(partitions))
 
     best_subsets = HSubset[]

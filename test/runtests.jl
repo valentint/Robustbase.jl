@@ -64,7 +64,7 @@ using Test
 
             ##  Qn matrix version
             qn1 = Qn_scale(Matrix(hbk));
-            ## qn2 = Qn_scale(Matrix(hbk), dims=2);    #!! Hangs for ever - FIXME!!!
+            qn2 = Qn_scale(Matrix(hbk), dims=2);    #!! Hangs for ever - FIXME!!!
             qn3 = Qn_scale(hbk[:,1]);
             @test isapprox(qn1, [1.7388521681539604, 1.7388521681539604, 1.5214956471347159, 0.8694260840769803])
             @test isapprox(qn2[[1,2,3,75]], [10.819405974300002, 11.844402329760001, 11.27495991006, 0.22777696788000001])
