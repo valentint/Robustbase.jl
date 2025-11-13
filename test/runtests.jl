@@ -80,7 +80,7 @@ using Test
 
             let err = nothing
                 try
-                  Qn_scale(Matrix(hbk), dim=3);
+                  Qn_scale(Matrix(hbk), dims=3);
                 catch err
                 end
                 @test err isa Exception
@@ -89,7 +89,7 @@ using Test
 
             let err = nothing
                 try
-                  Tau_scale(Matrix(hbk), dim=3);
+                  Tau_scale(Matrix(hbk), dims=3);
                 catch err
                 end
                 @test err isa Exception
@@ -98,7 +98,7 @@ using Test
 
             let err = nothing
                 try
-                  MAD_scale(Matrix(hbk), dim=3);
+                  MAD_scale(Matrix(hbk), dims=3);
                 catch err
                 end
                 @test err isa Exception
