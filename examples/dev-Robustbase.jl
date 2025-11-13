@@ -7,6 +7,7 @@ using Robustbase
 ##  Change to the root directory of the package, activate the package and run 'test'
 cd("C:/Users/valen/.julia/dev/Robustbase")
 Pkg.activate(".") 
+
 Pkg.test()
 
 ## To build documentation ...
@@ -383,11 +384,8 @@ mcd
 ##================================================
 using DataFrames
 using RCall
-using Test
 
 ## Load R libraries 
-R"library(ICSOutlier)"
-R"library(ICSClust)"
 R"library(cellWise)"
 
 X = rcopy(R"data('data_philips', package='cellWise'); x=data_philips");

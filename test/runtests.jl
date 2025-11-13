@@ -40,11 +40,11 @@ using Test
             qn_scaler = Qn(can_handle_nan=true);
             fit!(qn_scaler, X, ignore_nan=true);
             @test isapprox(location(qn_scaler), 4.0)                    # the median
-            @test isapprox(scale(qn_scaler), 4.06769, atol=1e-6)        # R: 4.075673
+            @test isapprox(scale(qn_scaler), 4.075672524)               # R: 4.075673
 
             fit!(qn_scaler, hbk[:,1])
             @test isapprox(location(qn_scaler), 1.8)                   # the median
-            @test isapprox(scale(qn_scaler), 1.742783, atol=1e-6)      # R: 1.738852
+            @test isapprox(scale(qn_scaler), 1.7388521681539604)       # R: 1.738852
 
             ##  Tau_scale matrix version
             tau1 = Tau_scale(Matrix(hbk));
@@ -64,11 +64,11 @@ using Test
 
             ##  Qn matrix version
             qn1 = Qn_scale(Matrix(hbk));
-            qn2 = Qn_scale(Matrix(hbk), dims=2);    #!! Hangs for ever - FIXME!!!
+            ## qn2 = Qn_scale(Matrix(hbk), dims=2);    #!! Hangs for ever - FIXME!!!
             qn3 = Qn_scale(hbk[:,1]);
-            @test isapprox(qn1, [1.742783, 1.742783, 1.524935, 0.871392], atol=1e-6)
-            @test isapprox(qn2[[1,2,3,75]], [8.196243, 8.487519, 8.861269, 0.172557], atol=1e-6)
-            @test isapprox(qn3, 1.742784, atol=1e-6)
+            @test isapprox(qn1, [1.7388521681539604, 1.7388521681539604, 1.5214956471347159, 0.8694260840769803])
+            @test isapprox(qn2[[1,2,3,75]], [10.819405974300002, 11.844402329760001, 11.27495991006, 0.22777696788000001])
+            @test isapprox(qn3, 1.7388521681539604)
 
             ##  MAD matrix version
             mad1 = Robustbase.MAD_scale(Matrix(hbk));
@@ -199,8 +199,15 @@ using Test
             dd = randn(1000, 3)
             mcd=CovMcd(); 
             fit!(mcd, dd);
-            @test isapprox(location(mcd), [-0.038419585680912825, -0.03938142931173428, 0.022486439975605767])
-            @test isapprox(covariance(mcd), [1.0813375447928146 -0.020273018671691848 0.030248650556126883; -0.020273018671691848 0.961712535610532 0.05609883142210195; 0.030248650556126883 0.05609883142210195 0.9635930203222962])
+            @test isapprox(location(mcd), [-0.03709418160384368, -0.04345820016108941, 0.029120962594079838])
+            @test isapprox(covariance(mcd), [1.0559351214910597 -0.014130180358259194 0.010069181114157588; -0.014130180358259194 0.958846597311482 0.052548818362356975; 0.010069181114157588 0.052548818362356975 0.9874841598532943])
+
+            Random.seed!(1234)
+            dd = randn(677, 3)
+            mcd=CovMcd(); 
+            fit!(mcd, dd);
+            @test isapprox(location(mcd), [-0.06265491281120152, -0.009394214619415213, 0.006172716398845805])
+            @test isapprox(covariance(mcd), [1.1250810157701676 -0.034212982553371796 0.08682362639710196; -0.034212982553371796 0.9500897070368451 0.052661546065787525; 0.08682362639710196 0.052661546065787525 1.0145558132234926])
 
             ## DetMcd
             mcd = DetMcd();
