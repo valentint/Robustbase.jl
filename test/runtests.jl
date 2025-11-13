@@ -1,5 +1,6 @@
 using Robustbase
 using Test
+using Random
 
     @testset "Robustbase.jl" begin
 
@@ -22,9 +23,38 @@ using Test
             @test isapprox(location(mcd_scaler), 3.4)
             @test isapprox(scale(mcd_scaler), 2.958950, atol=1e-6)
 
-            fit!(mcd_scaler, hbk[:,1], ignore_nan=true);
+            fit!(mcd_scaler, hbk[:,1]);
             @test isapprox(location(mcd_scaler), 1.537705, atol=1e-6)
             @test isapprox(scale(mcd_scaler), 1.571673, atol=1e-6)
+
+            ## alpha = 1.0
+            mcd_scaler = Robustbase.UnivariateMCD(alpha=1.0);
+            fit!(mcd_scaler, hbk[:,1]);
+            @test isapprox(location(mcd_scaler), 2.9657534246575348)
+            @test isapprox(scale(mcd_scaler), 3.691802691398022)
+
+            ## 0.5 <= alpha <= 1.0
+            mcd_scaler = Robustbase.UnivariateMCD(alpha=0.5);
+            fit!(mcd_scaler, hbk[:,1]);
+            @test isapprox(location(mcd_scaler), 1.537705, atol=1e-6)
+            @test isapprox(scale(mcd_scaler), 1.571673, atol=1e-6)
+
+            ## n/2 <= alpha <= n
+            mcd_scaler = Robustbase.UnivariateMCD(alpha=37);
+            fit!(mcd_scaler, hbk[:,1]);
+            @test isapprox(location(mcd_scaler), 1.537705, atol=1e-6)
+            @test isapprox(scale(mcd_scaler), 1.571673, atol=1e-6)
+
+            ## invalid alpha
+            let err = nothing
+                try
+                    mcd_scaler = Robustbase.UnivariateMCD(alpha=100);
+                    fit!(mcd_scaler, hbk[:,1]);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "ArgumentError: alpha must be an integer between n/2 and n or a float between 0.5 and 1, but received 100"
+            end
 
             ##  Tau scaler
             tau_scaler = Tau(can_handle_nan=true);
@@ -50,9 +80,15 @@ using Test
             fit!(qn_scaler, [10.0])
             @test isapprox(scale(qn_scaler), 0)       # R: 1.738852
 
+            ## odd (n=75)
             fit!(qn_scaler, hbk[:,1])
             @test isapprox(location(qn_scaler), 1.8)                   # the median
             @test isapprox(scale(qn_scaler), 1.7388521681539604)       # R: 1.738852
+
+            ## even (n=74)
+            fit!(qn_scaler, hbk[1:(size(hbk, 1)-1),1])
+            @test isapprox(location(qn_scaler), 1.85)                  # the median
+            @test isapprox(scale(qn_scaler), 1.6907024985030747)
 
             ##  Tau_scale matrix version
             tau1 = Tau_scale(Matrix(hbk));
@@ -132,7 +168,6 @@ using Test
             @test isapprox(covariance(cc), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
 
             ## CovMcd
-            using Random
             Random.seed!(1234)
             mcd = CovMcd();
 
@@ -222,6 +257,7 @@ using Test
                 @test err isa Exception
                 @test sprint(showerror, err) == "Invalid alpha value: 35. Must be between n/2 and n (integer) or between 0.5 and 1 (float)!"
             end
+            
             ## OK: alpha=0.5 (the default for alpha=nothing)
             mcd = CovMcd(alpha=0.5);
             fit!(mcd, hbk[:,1:3])
@@ -245,12 +281,21 @@ using Test
             @test isapprox(location(mcd), [-0.03709418160384368, -0.04345820016108941, 0.029120962594079838])
             @test isapprox(covariance(mcd), [1.0559351214910597 -0.014130180358259194 0.010069181114157588; -0.014130180358259194 0.958846597311482 0.052548818362356975; 0.010069181114157588 0.052548818362356975 0.9874841598532943])
 
+            ## near to the limit 2*nmini=600 (e.g. Philips data)
             Random.seed!(1234)
             dd = randn(677, 3)
             mcd=CovMcd(); 
             fit!(mcd, dd);
             @test isapprox(location(mcd), [-0.06265491281120152, -0.009394214619415213, 0.006172716398845805])
             @test isapprox(covariance(mcd), [1.1250810157701676 -0.034212982553371796 0.08682362639710196; -0.034212982553371796 0.9500897070368451 0.052661546065787525; 0.08682362639710196 0.052661546065787525 1.0145558132234926])
+
+            ## above kmini * nmini = 5 * 300 = 1500
+            Random.seed!(1234)
+            dd = randn(1800, 3)
+            mcd=CovMcd(); 
+            fit!(mcd, dd);
+            @test isapprox(location(mcd), [-0.022150791228884206, -0.0034405597512334085, -0.002805846879562287])
+            @test isapprox(covariance(mcd), [1.0343487388080232 -0.011519769324182357 -0.0073441160310625045; -0.011519769324182357 1.0387703779359443 0.011906631852494534; -0.0073441160310625045 0.011906631852494534 0.9521863436685187])
 
             ## DetMcd
             mcd = DetMcd();

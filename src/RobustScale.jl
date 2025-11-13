@@ -152,9 +152,9 @@ end
     raw_variance::Union{Nothing, Float64}
     location_::Union{Nothing, Float64}
     scale_::Union{Nothing, Float64}
-    variance::Union{Nothing, Float64}
+    variance_::Union{Nothing, Float64}
 
-    function UnivariateMCD(; alpha::Union{Float64, Int, Nothing} = 0.5, consistency_correction::Bool = true, can_handle_nan::Bool = false)
+    function UnivariateMCD(; alpha::Union{Float64, Int, Nothing} = nothing, consistency_correction::Bool = true, can_handle_nan::Bool = false)
         new(can_handle_nan, alpha, consistency_correction, nothing, nothing, nothing, nothing, nothing, nothing, nothing)
     end
 end
@@ -165,12 +165,12 @@ function _calculate!(rs::UnivariateMCD, X::Vector{Float64})
     if rs.h_size == length(X)      # return sample location and variance
         rs.raw_location = rs.location_ = mean(X)
         rs.raw_scale = rs.scale_ = std(X)
-        rs.raw_variance = rs.variance_ = raw_scale_^2
+        rs.raw_variance = rs.variance_ = rs.raw_scale^2
     end
 
     rs.raw_variance, rs.raw_location = get_raw_estimates(X, rs.h_size, rs.consistency_correction)
-    rs.variance, rs.location_ = reweighting(X, rs.raw_location, rs.raw_variance, rs.consistency_correction)
-    rs.raw_scale, rs.scale_ = sqrt(rs.raw_variance), sqrt(rs.variance)
+    rs.variance_, rs.location_ = reweighting(X, rs.raw_location, rs.raw_variance, rs.consistency_correction)
+    rs.raw_scale, rs.scale_ = sqrt(rs.raw_variance), sqrt(rs.variance_)
 end
 
 """
@@ -227,7 +227,7 @@ end
 function set_h_size(alpha::Union{Float64, Int, Nothing}, n::Int)
     if alpha === nothing
         return div(n, 2) + 1
-    elseif alpha isa Int && (n / 2 <= alpha <= n)
+    elseif alpha isa Int && (div(n, 2) <= alpha <= n)
         return alpha
     elseif alpha isa Float64 && (0.5 <= alpha <= 1)
         return floor(alpha * n)
