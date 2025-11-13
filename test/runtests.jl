@@ -78,6 +78,32 @@ using Test
             @test isapprox(mad2[[1,2,3,75]], [7.33887, 8.1543, 7.33887, 0.14826], atol=1e-6)
             @test isapprox(mad3, 1.92738, atol=1e-6)
 
+            let err = nothing
+                try
+                  Qn_scale(Matrix(hbk), dim=3);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "dims 3 not supported"
+            end
+
+            let err = nothing
+                try
+                  Tau_scale(Matrix(hbk), dim=3);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "dims 3 not supported"
+            end
+
+            let err = nothing
+                try
+                  MAD_scale(Matrix(hbk), dim=3);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "dims 3 not supported"
+            end
         end
         @testset "Covariance" begin
             ## CovClassic

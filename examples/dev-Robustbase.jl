@@ -1,7 +1,7 @@
 using Revise, Pkg
 Pkg.activate(".julia/dev/Robustbase")
 using Robustbase
-
+pkgversion(Robustbase)
 
 ## To run the tests:
 ##  Change to the root directory of the package, activate the package and run 'test'
@@ -9,6 +9,10 @@ cd("C:/Users/valen/.julia/dev/Robustbase")
 Pkg.activate(".") 
 
 Pkg.test()
+
+
+##  To reproduce this CI run locally run the following from the same repository state on julia version 1.12.1:
+import Pkg; Pkg.test(;coverage=true, julia_args=["--check-bounds=yes", "--compiled-modules=yes", "--depwarn=yes"], force_latest_compatible_version=false, allow_reresolve=true)
 
 ## To build documentation ...
 ##  Change to the root directory of the package, activate the package and run 'test'
