@@ -42,6 +42,14 @@ using Test
             @test isapprox(location(qn_scaler), 4.0)                    # the median
             @test isapprox(scale(qn_scaler), 4.075672524)               # R: 4.075673
 
+            ## length 0
+            fit!(qn_scaler, Vector{Float64}(undef, 0))
+            @test isnan(scale(qn_scaler)) 
+
+            ## length 1
+            fit!(qn_scaler, [10.0])
+            @test isapprox(scale(qn_scaler), 0)       # R: 1.738852
+
             fit!(qn_scaler, hbk[:,1])
             @test isapprox(location(qn_scaler), 1.8)                   # the median
             @test isapprox(scale(qn_scaler), 1.7388521681539604)       # R: 1.738852
@@ -90,6 +98,15 @@ using Test
             let err = nothing
                 try
                   Tau_scale(Matrix(hbk), dims=3);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "dims 3 not supported"
+            end
+
+            let err = nothing
+                try
+                  Tau_location(Matrix(hbk), dims=3);
                 catch err
                 end
                 @test err isa Exception

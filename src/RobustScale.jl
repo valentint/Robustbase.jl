@@ -250,8 +250,9 @@ function get_small_sample_cn(n::Int)
         return 1.0/get(ndict, n, 1.0)
     elseif isodd(n)
         return (1.60188 +(-2.1284 - 5.172/n)/n)/n + 1   # n / (n + 1.4)
+    else
+        return (3.67561 +( 1.9654 +(6.987 - 77/n)/n)/n)/n + 1       # n / (n + 3.8)
     end
-    return (3.67561 +( 1.9654 +(6.987 - 77/n)/n)/n)/n + 1       # n / (n + 3.8)
 end
 
 """
@@ -302,9 +303,13 @@ function _calculate!(q::Qn, X::Vector{Float64})
     x = sort(collect(X))
     n = length(x)
     if n == 0
-        return NaN
+        q.location_ = NaN
+        q.scale_ = NaN
+        return
     elseif n == 1
-        return 0.0
+        q.location_ = q.location_func(X)
+        q.scale_ = 0.0
+        return
     end
 
     """
