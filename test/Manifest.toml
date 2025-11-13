@@ -821,9 +821,9 @@ version = "0.5.1+0"
 
 [[deps.Robustbase]]
 deps = ["DataFrames", "Distributions", "LinearAlgebra", "Logging", "Plots", "Random", "Statistics", "StatsBase"]
-git-tree-sha1 = "f9174e68b015131970f003bca896cfb845a8c54d"
+git-tree-sha1 = "f9029dcf339c7cc8ad4cf002ccf8e059686e2208"
 repo-rev = "main"
-repo-url = ".."
+repo-url = "https://github.com/valentint/Robustbase.jl"
 uuid = "1786b160-9db0-4122-8bd2-4c7456afcf2f"
 version = "0.2.0"
 
