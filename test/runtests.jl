@@ -164,6 +164,9 @@ using Random
             display(cc)
             fit!(cc, hbk[:,1:3])
             display(cc)
+            qq_plot(cc)
+            distance_plot(cc)
+            tolellipse_plot(cc)
             @test isapprox(location(cc), [3.206667, 5.597333, 7.230667], atol=1e-6)
             @test isapprox(covariance(cc), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
 
@@ -209,6 +212,9 @@ using Random
             fit!(mcd, hbk[:,1:3]);
             display(mcd)
             dd_plot(mcd)
+            qq_plot(mcd)
+            distance_plot(mcd)
+            tolellipse_plot(mcd)
             @test isapprox(location(mcd), [1.558333,  1.803333,  1.66], atol=1e-6)
             @test isapprox(covariance(mcd), [1.213121    0.0239154  0.1657933; 0.0239154 1.228357 0.195735; 0.165793  0.195735   1.125346], atol=1e-6)
             @test isapprox(correlation(mcd), [1.0 0.019591  0.141896; 0.019591 1.0 0.166480; 0.141896 0.166480 1.0], atol=1e-6)
