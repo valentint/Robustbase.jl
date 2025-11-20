@@ -176,6 +176,38 @@ using Random
             @test isapprox(location(cc), [3.2066666666], atol=1e-6)
             @test isapprox(covariance(cc), [13.341711711711707;;])
 
+            ## tolellipse errors
+            let err = nothing
+                try
+                    cc = CovClassic();
+                    fit!(cc, hbk[:,1:3]);
+                    tolellipse_plot(cc, select=[1,2,3])
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Invalid columns selected: both should be greater than 1 and less than 3"
+            end
+            let err = nothing
+                try
+                    cc = CovClassic();
+                    fit!(cc, hbk[:,1:3]);
+                    tolellipse_plot(cc, select=[1,1])
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Identical columns selected!"
+            end
+            let err = nothing
+                try
+                    cc = CovClassic();
+                    fit!(cc, hbk[:,1]);
+                    tolellipse_plot(cc)
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Tolerance ellipse plot not possible for univariate data!"
+            end
+
             ## CovMcd
             Random.seed!(1234)
             mcd = CovMcd();
