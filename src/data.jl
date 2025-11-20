@@ -566,6 +566,10 @@ Modified Wood Gravity Data
 - `x5::Float64`: Random values.
 - `y::Float64`: Random values (independent variable).
 
+# Outliers
+
+Originally from Draper and Smith (1966), consisting of 20 observations of 5 explanatory variables and a response (wood specific gravity).
+Rousseeuw and Leroy (1987) modified the data by replacing observations 4, 6, 8, and 19 by outliers.
 
 # References
 P. J. Rousseeuw and A. M. Leroy (1987) Robust Regression and Outlier Detection. Wiley, p.243, table 8.
