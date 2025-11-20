@@ -7,10 +7,12 @@
 """
         dd_plot(model::RobustCovariance; chi2_percentile::Float64=0.975, 
             id_n=nothing, figsize=(400, 400))
+
 Produce distance-distance plot for a robust estiamtor of location and covariance. 
-The robust mahalanobis distances are plotted against the classical mahalanobis distances. A horizontal and vertical line identifile the threshold
+The robust mahalanobis distances are plotted against the classical mahalanobis distances. A horizontal and vertical line identify the threshold
 related to a percentile of the chi2 distribution (```chi2_percentile```).
 The ```id_n``` observations with largest robust distances are annotated by labels. 
+
 # Attrributes
 - ```model```: a ```RobustCovariance``` estimator.
 
@@ -72,6 +74,28 @@ function dd_plot(model::RobustCovariance; chi2_percentile::Float64=0.975, id_n=n
     return current()
 end
 
+"""
+    qq_plot(model::CovarianceEstimator; chi2_percentile::Float64=0.975, 
+        id_n::Union{Int64, Nothing}=nothing, figsize=(400, 400))
+
+Produce chi2 Q-Q plot for a robust or classical estiamtor of multivariate location and covariance. 
+The sample quantiles (sorted (robust) mahalanobis distances) are plotted against the squared root 
+of the quantiles of the chi2 distribution with ```p``` degrees of freedom (where ```p``` is the 
+dimension of the data matrix). If the two distributions are identical, the Q–Q plot follows 
+the 45° line ```y = x``` (the dotted line).
+The ```id_n``` observations with largest distances are annotated by labels. 
+
+# Attrributes
+- ```model```: a ```CovarianceEstimate``` estimator.
+
+# Keywords
+- ```chi2_percentile```: specifies the cutoff for outlier detection, a quantile of the chi2 distribution. Default is ```chi2_percentile=0.975```.
+- ```id_n```: number of observations to annotate. By default these are the observations with robust mahalanobis distances larger than a thershold given by ```chi2-percentile```.
+- ```figsize```: size of the plot, default is ```figsize=(400, 400)```.
+
+# Returns
+The current plot.
+"""
 function qq_plot(model::CovarianceEstimator; chi2_percentile::Float64=0.975, id_n::Union{Int64, Nothing}=nothing, figsize=(400, 400))
 
     _fitted_covariance(model)
@@ -136,6 +160,25 @@ function qq_plot(model::CovarianceEstimator; chi2_percentile::Float64=0.975, id_
     return current()    
 end
 
+"""
+    distance_plot(model::CovarianceEstimator; chi2_percentile::Float64=0.975, 
+        id_n::Union{Int64, Nothing}=nothing, figsize=(400, 400))
+
+Produce distance plot for a robust or classical estiamtor of multivariate location and covariance. 
+The (robust) mahalanobis distances are plotted against the index of the observations. 
+A horizontal line identifies the threshold related to a percentile of the chi2 distribution (```chi2_percentile```). The ```id_n``` observations with largest distances are annotated by labels. 
+
+# Attrributes
+- ```model```: a ```CovarianceEstimate``` estimator.
+
+# Keywords
+- ```chi2_percentile```: specifies the cutoff for outlier detection, a quantile of the chi2 distribution. Default is ```chi2_percentile=0.975```.
+- ```id_n```: number of observations to annotate. By default these are the observations with robust mahalanobis distances larger than a thershold given by ```chi2-percentile```.
+- ```figsize```: size of the plot, default is ```figsize=(400, 400)```.
+
+# Returns
+The current plot.
+"""
 function distance_plot(model::CovarianceEstimator; chi2_percentile::Float64=0.975, id_n::Union{Int64, Nothing}=nothing, figsize=(400, 400))
 
     _fitted_covariance(model)
@@ -188,6 +231,29 @@ function distance_plot(model::CovarianceEstimator; chi2_percentile::Float64=0.97
 
 end
 
+"""
+    tolellipse_plot(model::CovarianceEstimator; select=[1, 2], 
+    classic::Bool=true, chi2_percentile::Float64=0.975, 
+    id_n::Union{Int64, Nothing}=nothing, figsize=(400, 400))
+
+Produce tolerance ellipse plot for a robust or classical estiamtor of multivariate location and covariance. 
+A scatter plot of two selected columns of the data matrix are plotted and tolerance ellipse(s) with confidence ```chi2_percentile``` are overlayed.
+In the case of a robust estiamtor both the elipses based on the robust and classical estimates are shown while in the case of a classical estimator only the classical ellipse is shown.
+The ```id_n``` observations with largest distances are annotated by labels. 
+
+# Attrributes
+- ```model```: a ```CovarianceEstimate``` estimator.
+
+# Keywords
+- ```select```: A vector of two elements with the indexes of the two columns to be plotted. Default is ```select=[1, 2]```.
+- ```classic```: Whether to print the classical tolerance ellipse (in case of a robust estimator)
+- ```chi2_percentile```: specifies the cutoff for outlier detection, a quantile of the chi2 distribution. Default is ```chi2_percentile=0.975```.
+- ```id_n```: number of observations to annotate. By default these are the observations with robust mahalanobis distances larger than a thershold given by ```chi2-percentile```.
+- ```figsize```: size of the plot, default is ```figsize=(400, 400)```.
+
+# Returns
+The current plot.
+"""
 function tolellipse_plot(model::CovarianceEstimator; select=[1, 2], classic::Bool=true, chi2_percentile::Float64=0.975, id_n::Union{Int64, Nothing}=nothing, figsize=(400, 400))
 
     _fitted_covariance(model)
@@ -205,6 +271,9 @@ function tolellipse_plot(model::CovarianceEstimator; select=[1, 2], classic::Boo
     threshold = sqrt(quantile(Chisq(p), chi2_percentile))
     names = ["X$i" for i=1:size(model.X, 2)]
 
+    if(p == 1)
+        error("Tolerance ellipse plot not possible for univariate data!")
+    end
     if(length(select) != 2 || select[1] < 1 || select[1] > p || select[2] < 1 || select[2] > p)
         error("Invalid columns selected: both should be greater than 1 and less than ", p)
     end

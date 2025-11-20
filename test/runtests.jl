@@ -170,6 +170,12 @@ using Random
             @test isapprox(location(cc), [3.206667, 5.597333, 7.230667], atol=1e-6)
             @test isapprox(covariance(cc), [13.341712 28.469207 41.243982; 28.469207 67.882966 94.665623; 41.243982 94.665623 137.834858], atol=1e-6)
 
+            ## CovClassic with 1D
+            cc = CovClassic();
+            fit!(cc, hbk[:,1]);
+            @test isapprox(location(cc), [3.2066666666], atol=1e-6)
+            @test isapprox(covariance(cc), [13.341711711711707;;])
+
             ## CovMcd
             Random.seed!(1234)
             mcd = CovMcd();
@@ -344,11 +350,15 @@ using Random
             @test isapprox(covariance(mcd), [3.3574998 0.587449 0.699388; 0.587449 2.092680 0.285757; 0.699388 0.285757 2.775268], atol=1e-6)
 
             ## CovOgk with 1D
-            mcd = CovOgk();
-            fit!(mcd, hbk[:,1]);
-            @test isapprox(location(mcd), [1.537705], atol=1e-6)
-            @test isapprox(covariance(mcd), [1.132055;;], atol=1e-6)
-
+            let err = nothing
+                try
+                    mcd = CovOgk();
+                    fit!(mcd, hbk[:,1]);
+                catch err
+                end
+                @test err isa Exception
+                @test sprint(showerror, err) == "Needs at least 2 columns!"
+            end
         end
     end
  

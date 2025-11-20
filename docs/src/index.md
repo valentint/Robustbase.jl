@@ -64,9 +64,25 @@ Robustbase.DetMcd
 Robustbase.CovOgk
 ```
 # Plot functions
+
 ## Distance-Distance plot
 ```@docs
 Robustbase.dd_plot
+```
+
+## Q-Q plot
+```@docs
+Robustbase.qq_plot
+```
+
+## Distance plot
+```@docs
+Robustbase.distance_plot
+```
+
+## Tolerance ellipse plot
+```@docs
+Robustbase.tolellipse_plot
 ```
 
 # Data sets

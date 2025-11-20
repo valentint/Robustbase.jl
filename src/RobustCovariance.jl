@@ -1,4 +1,4 @@
-##  using LinearAlgebra, Random, Statistics, Distributions, Logging
+    ##  using LinearAlgebra, Random, Statistics, Distributions, Logging
 ##  using DataFrames
 ##  using Plots
 
@@ -165,7 +165,7 @@ end
 
 abstract type RobustCovariance <: CovarianceEstimator end
 
-function fit!(model::RobustCovariance, X::Union{Matrix{Float64}, DataFrame})
+function fit!(model::RobustCovariance, X::Union{Matrix{Float64}, Vector{Float64}, DataFrame})
     if X isa Vector{Float64}
         X = reshape(X, (:,1))
     elseif X isa DataFrame
@@ -842,8 +842,12 @@ function get_initial_best_subsets(model::DetMcd, Z::Matrix{Float64}, X::Matrix{F
     S5 = cov(Z[idx, :], dims=1)
 
     ## 6. Raw OGK estimate for scatter
-    ogk = CovOgk(location_estimator=median, scale_estimator=Tau_scale, reweighting=false)
-    S6 = calculate_covariance!(ogk, Z)
+    if size(Z, 2) == 1      # X is one-dimensional, OGK cannot be used!
+        S6 = S5
+    else
+        ogk = CovOgk(location_estimator=median, scale_estimator=Tau_scale, reweighting=false)
+        S6 = calculate_covariance!(ogk, Z)
+    end
 
     estimates_S = [S1, S2, S3, S4, S5, S6]
 
@@ -1006,6 +1010,10 @@ end
 function calculate_covariance!(model::CovOgk, X::Matrix{Float64})
     
     p = size(X, 2)
+    if p < 2
+        error("Needs at least 2 columns!")
+    end
+    
     Z = copy(X)
     DE = Vector{Matrix{Float64}}()
     
@@ -1016,7 +1024,7 @@ function calculate_covariance!(model::CovOgk, X::Matrix{Float64})
         Y = Z * Dinv  # (n x p)
         U = ones(p, p)
         
-        # Compute correlation matrix U
+        ## Compute correlation matrix U
         for i in 2:p
             for j in 1:(i - 1)
                 scale_sum = model.scale_estimator(Y[:, i] + Y[:, j])
@@ -1026,8 +1034,8 @@ function calculate_covariance!(model::CovOgk, X::Matrix{Float64})
             end
         end
         
-        _, E = eigen(U)  # (p x p)
-        Z = Y * E  # (n x p)
+        _, E = eigen(U)         # (p x p)
+        Z = Y * E               # (n x p)
         push!(DE, D * E)
     end
 
