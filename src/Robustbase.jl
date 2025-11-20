@@ -7,7 +7,7 @@ using StatsBase: tiedrank, cov2cor
 using LinearAlgebra
 using Random
 using Logging
-using Plots
+using StatsPlots
 
 import Base: show
 import StatsBase: CovarianceEstimator
@@ -22,6 +22,7 @@ import .DataSets: hbk, stackloss, wood, animals
 
 include("RobustScale.jl")
 include("RobustCovariance.jl")
+include("plots.jl")
 
 export ## greet,
     MAD_scale,
@@ -39,7 +40,11 @@ export ## greet,
     location,
     covariance,
     correlation,
-    dd_plot
+    distance,
+    dd_plot,
+    qq_plot,
+    distance_plot,
+    tolellipse_plot
 
 
 ## Data

@@ -63,6 +63,11 @@ Robustbase.DetMcd
 ```@docs
 Robustbase.CovOgk
 ```
+# Plot functions
+## Distance-Distance plot
+```@docs
+Robustbase.dd_plot
+```
 
 # Data sets
 `Robustbase` includes several datasets that are often used in the robustness literature.

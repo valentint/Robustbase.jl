@@ -34,11 +34,23 @@ function fit!(model::CovarianceEstimator, X::Union{Matrix{Float64}, Vector{Float
 
     ## Handle here missing data ...
 
+    model.X = X
     model.nobs = size(X, 1)
     
     calculate_covariance!(model, X)
+    model.mahalanobis_distances_ = mahalanobis_distance(X, model.location_, model.covariance_)
 
 return model
+end
+
+function _fitted_covariance(model)::Bool
+    if !hasproperty(model, :covariance_)
+        error("Model has no 'covariance' property!")
+    end
+    if isnothing(model.covariance_) || isempty(model.covariance_)
+        error("Model is not fitted yet!")
+    end
+    return true
 end
 
 """
@@ -59,9 +71,7 @@ end
 Covariance matrix
 """
 function covariance(model::CovarianceEstimator)::Matrix{Float64}
-    if isnothing(model.covariance_) || length(model.covariance_) == 0
-        error("Model is not fitted yet!")
-    end
+    _fitted_covariance(model)
     return model.covariance_
 end
 
@@ -71,10 +81,18 @@ end
 Correlation matrix
 """
 function correlation(model::CovarianceEstimator)::Matrix{Float64}
-    if isnothing(model.covariance_) || length(model.covariance_) == 0
-        error("Model is not fitted yet!")
-    end
+    _fitted_covariance(model)
     return cov2cor(covariance(model))
+end
+
+"""
+    distance(model::CovarianceEstimator)::Vector{Float64}
+
+Mahalanobis distance
+"""
+function distance(model::CovarianceEstimator)::Vector{Float64}
+    _fitted_covariance(model)
+    return model.mahalanobis_distances_
 end
 
 """
@@ -108,9 +126,11 @@ mutable struct CovClassic <: CovarianceEstimator
     covariance_::Union{Matrix{Float64}, Nothing}
     precision_::Union{Matrix{Float64}, Nothing}
     assume_centered::Bool
+    mahalanobis_distances_::Vector{Float64}
+    X::Union{Matrix{Float64}, Nothing}      # The input data matrix without NAs
 
     function CovClassic(; assume_centered::Bool = false)
-        new(0, nothing, nothing, nothing, assume_centered)
+        new(0, nothing, nothing, nothing, assume_centered, [], nothing)
     end
 end
 
@@ -146,14 +166,17 @@ end
 abstract type RobustCovariance <: CovarianceEstimator end
 
 function fit!(model::RobustCovariance, X::Union{Matrix{Float64}, DataFrame})
-    if X isa DataFrame
+    if X isa Vector{Float64}
+        X = reshape(X, (:,1))
+    elseif X isa DataFrame
         X = Matrix(X)
     end
 
     ## Handle here missing data ...
 
+    model.X = X
     model.nobs = size(X, 1)
-    
+
     if model.assume_centered
         model.default_location_ = zeros(size(X, 2))
     else
@@ -169,41 +192,14 @@ function fit!(model::RobustCovariance, X::Union{Matrix{Float64}, DataFrame})
     return model
 end
 
-function dd_plot(model::RobustCovariance; chi2_percentile::Float64=0.975, id_n=nothing, figsize=(400, 400))
-    if isnothing(model.covariance_) || length(model.covariance_) == 0
-        error("Model is not fitted yet!")
-    end
+"""
+    distance(model::RobustCovariance)::Vector{Float64}
 
-    threshold = sqrt(quantile(Chisq(size(model.default_location_, 1)), chi2_percentile))
-
-    scatter(model.mahalanobis_distances_, model.robust_distances_,
-        xlabel="Non-robust distance", ylabel="Robust distance",
-        title="Distance-Distance Plot", legend=false, size=figsize)
-
-    hline!([threshold], color=:gray, linestyle=:dash)
-    vline!([threshold], color=:gray, linestyle=:dash)
-
-    max_threshold = threshold + 0.1*threshold
-    max_x = max(maximum(model.mahalanobis_distances_), max_threshold)
-    max_y = max(maximum(model.robust_distances_), max_threshold)
-    plot!([0, max_x], [0, max_y], color=:gray, linestyle=:dashdot)
-
-    ##  println("Parameter id_n: ", id_n)
-
-    if isnothing(id_n)
-        id_n = length(findall(model.robust_distances_ .>= threshold))
-        println("id_n: ", id_n)
-    end
-
-    off = 0.015 * max_x
-    if id_n > 0
-        top_indices = sortperm(model.robust_distances_, rev=true)[1:id_n]
-        ##  println("top_indices", top_indices)
-        for idx in top_indices
-            annotate!(model.mahalanobis_distances_[idx] - off, model.robust_distances_[idx], text(string(idx), :red, :right, 6))
-        end
-    end
-    return current()
+Robust Mahalanobis distance
+"""
+function distance(model::RobustCovariance)::Vector{Float64}
+    _fitted_covariance(model)
+    return model.robust_distances_
 end
 
 struct HSubset
@@ -408,6 +404,7 @@ mutable struct CovMcd <: RobustCovariance
     best_subset::HSubset
     raw_cnp2::Vector{Float64}
     cnp2::Vector{Float64}
+    X::Union{Matrix{Float64}, Nothing}      # The input data matrix without NAs
 
     function CovMcd(;assume_centered=false, alpha=nothing, n_initial_subsets=500, n_initial_c_steps=2,
         n_best_subsets=10, n_partitions=nothing, tolerance=1e-8,
@@ -418,8 +415,9 @@ mutable struct CovMcd <: RobustCovariance
         end
 
         new(alpha, n_initial_subsets, n_initial_c_steps, n_best_subsets, 
-        n_partitions, tolerance, reweighting, verbosity, assume_centered, 300, 5, 
-        0, 0, [], 0, [], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [])
+            n_partitions, tolerance, reweighting, verbosity, assume_centered, 300, 5, 
+            0, 0, [], 0, [], [;;], [], [;;], [], [;;], [], [], [], 
+            HSubset([], [], [;;], 0.0, 0), [], [], nothing)
     end
 end
 
@@ -699,11 +697,12 @@ mutable struct DetMcd <: RobustCovariance
     cnp2::Vector{Float64}
     mask::Union{Nothing, Vector{Bool}}
     initHsets::Matrix{Int}
+    X::Union{Matrix{Float64}, Nothing}      # The input data matrix without NAs
 
     function DetMcd(; assume_centered=false,  alpha=nothing, n_maxcsteps=200, tolerance=1e-8,
         reweighting=true, verbosity=Logging.Warn)
         new(alpha, n_maxcsteps, tolerance, reweighting, verbosity, assume_centered,
-        0, 0, [], [], 0, [], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [], [], [;;])
+        0, 0, [], [], 0, [], [;;], [], [;;], [], [;;], [], [], [], HSubset([], [], [;;], 0.0, 0), [], [], [], [;;], nothing)
     end
 end
 
@@ -723,7 +722,6 @@ function Base.show(io::IO, mime::MIME"text/plain", obj::DetMcd)
         Base.show(stdout, mime, covariance(obj))
     end
 end
-
 
 function calculate_covariance!(model::DetMcd, X::Matrix{Float64})
     n, p = size(X)
@@ -971,6 +969,7 @@ mutable struct CovOgk <: RobustCovariance
     default_covariance_::Matrix{Float64}
     robust_distances_::Vector{Float64}
     mahalanobis_distances_::Vector{Float64}
+    X::Union{Matrix{Float64}, Nothing}      # The input data matrix without NAs
 
     function CovOgk(;
         store_precision::Bool=true,
@@ -982,7 +981,7 @@ mutable struct CovOgk <: RobustCovariance
         reweighting_beta::Float64=0.9
     )
         return new(store_precision, assume_centered, location_estimator, scale_estimator, 
-            n_iterations, reweighting, reweighting_beta, 0, [], [;;], [], [;;], [], [])
+            n_iterations, reweighting, reweighting_beta, 0, [], [;;], [], [;;], [], [], nothing)
     end
 end
 

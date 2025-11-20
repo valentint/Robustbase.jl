@@ -152,10 +152,6 @@ X = rcopy(R"data(ionosphere, package='rrcov'); x=ionosphere[,3:34]"); doTestQn(X
     A simple version of Qn() -- O(n^2) in both time and memory — 
     good for small to moderate n, easy to understand
 """
-
-
-
-
 function Qn0(x::AbstractVector{<:Real}; consistency_correction::Bool=true, finite_correction::Bool=true)
     x = sort(collect(x))
     n = length(x)
@@ -383,5 +379,3 @@ function Qn2(X::AbstractVector{<:Real}; consistency_correction::Bool=true, finit
 
      return Qn_val
 end
-
-

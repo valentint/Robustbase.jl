@@ -396,3 +396,40 @@ X = rcopy(R"data('data_philips', package='cellWise'); x=data_philips");
 
 mcd=CovMcd()
 fit!(mcd, X)
+
+##================================================
+##
+##  Test all Plots
+##
+
+cc = CovClassic()
+mcd = CovMcd()
+dmcd = DetMcd()
+ogk = CovOgk()
+
+fit!(cc, hbk[:,1:3])
+try
+    dd_plot(cc)
+catch err
+end
+qq_plot(cc)
+distance_plot(cc)
+tolellipse_plot(cc)
+
+fit!(mcd, hbk[:,1:3])
+dd_plot(mcd)
+qq_plot(mcd)
+distance_plot(mcd)
+tolellipse_plot(mcd)
+
+fit!(dmcd, hbk[:,1:3])
+dd_plot(dmcd)
+qq_plot(dmcd)
+distance_plot(dmcd)
+tolellipse_plot(dmcd)
+
+fit!(ogk, hbk[:,1:3])
+dd_plot(ogk)
+qq_plot(ogk)
+distance_plot(ogk)
+tolellipse_plot(ogk)
