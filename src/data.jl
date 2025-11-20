@@ -11,6 +11,10 @@ Hawkins & Bradu & Kass data
 - `x3::Float64`: third independent variable.
 - `y::Float64`: dependent (response) variable.
 
+# Outliers
+This data set provides a good example of the masking effect. The first 14 observations are outliers, created in two groups: 
+1-10 and 11-14. Only observations 12, 13 and 14 appear as outliers when using classical methods, but can be easily unmasked 
+using robust distances computed by, e.g., MCD - CovMcd() or DetMcd().
 
 # Reference
 Hawkins, D.M., Bradu, D., and Kass, G.V. (1984) Location of several outliers in multiple regression data using elemental sets. Technometrics 26, 197–208.
