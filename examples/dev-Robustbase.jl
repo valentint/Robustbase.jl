@@ -26,7 +26,6 @@ include("C:/Users/valen/.julia/dev/Robustbase/docs/make.jl")
 using LiveServer
 servedocs()
 
-
 ##  ==========================================================================
 ##
 ##  Testing the scalers
