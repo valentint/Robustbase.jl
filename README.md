@@ -2,9 +2,11 @@
 
 [![Build Status](https://github.com/valentint/Robustbase.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/valentint/Robustbase.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![codecov.io](http://codecov.io/github/valentint/Robustbase.jl/coverage.svg?branch=main)](http://codecov.io/github/valentint/Robustbase.jl?branch=main)
+[![Doc](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint/Robustbase.jl/stable)
 [![Doc](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase.jl/dev/)
+<--[![DOI](https://zenodo.org/badge/1080038478.svg)](https://doi.org/10.5281/zenodo.20476499)-->
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20562920.svg)](https://doi.org/10.5281/zenodo.20562920)
 
-<!--[![](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint/Robustbase.jl/stable)-->
 <!-- ![](README-logo.png) -->
 
 The package `Robustbase` provides "Essential" Robust Statistics - tools allowing to analyze data with robust methods: univariate methods, multivariate statistics and regression. We strive to cover the book "Robust Statistics, Theory and Methods (with R)" by 'Maronna, Martin, Yohai and Salibian-Barrera'; Wiley 2019. The package is based on the R packages `robustbase` and `rrcov`.
