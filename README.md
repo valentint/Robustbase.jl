@@ -4,8 +4,7 @@
 [![codecov.io](http://codecov.io/github/valentint/Robustbase.jl/coverage.svg?branch=main)](http://codecov.io/github/valentint/Robustbase.jl?branch=main)
 [![Doc](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint/Robustbase.jl/stable)
 [![Doc](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase.jl/dev/)
-[![DOI](https://zenodo.org/badge/1080038478.svg)](https://doi.org/10.5281/zenodo.20476499)
-[![](https://zenodo.org/badge/DOI/10.5281/zenodo.20562920.svg)](https://doi.org/10.5281/zenodo.20562920)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20562920.svg)](https://doi.org/10.5281/zenodo.20562920)
 
 <!-- ![](README-logo.png) -->
 
