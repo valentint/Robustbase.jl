@@ -2,15 +2,14 @@
 
 [![Build Status](https://github.com/valentint/Robustbase.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/valentint/Robustbase.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![codecov.io](http://codecov.io/github/valentint/Robustbase.jl/coverage.svg?branch=main)](http://codecov.io/github/valentint/Robustbase.jl?branch=main)
-[![Doc](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint/Robustbase.jl/stable)
+[![Doc](https://img.shields.io/badge/docs-stable-blue.svg)](https://valentint.github.io/Robustbase.jl/stable/)
 [![Doc](https://img.shields.io/badge/docs-dev-blue.svg)](https://valentint.github.io/Robustbase.jl/dev/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.20562920.svg)](https://doi.org/10.5281/zenodo.20562920)
-
 <!-- ![](README-logo.png) -->
 
 The package `Robustbase` provides "Essential" Robust Statistics - tools allowing to analyze data with robust methods: univariate methods, multivariate statistics and regression. We strive to cover the book "Robust Statistics, Theory and Methods (with R)" by 'Maronna, Martin, Yohai and Salibian-Barrera'; Wiley 2019. The package is based on the R packages `robustbase` and `rrcov`.
 
-## Installation
+# Installation
 
 The package Robustbase can be installed using the Julia REPL as follows
 
@@ -33,12 +32,12 @@ julia> using Robustbase
 ```
 to make it available to the user.
 
-## Documentation
+# Documentation
 Please check out the reference manual [here](https://valentint.github.io/Robustbase.jl/dev/).
 
-## Functionalities
+# Functionalities
 
-### 1. Univariate statistics
+## 1. Univariate statistics
 The univariate module contains several univariate location and scale estimators. 
 They all implement the abstract base class `RobustScale`, which has
 the properties `location` and `scale` and can be fitted using the `fit!` method. Each 
@@ -47,7 +46,7 @@ class is expected to implement a `_calculate` method where the attributes `scale
 All functions have matrix versions which can be called on a matrix or a data frame
 specifying the required dimension on which to do the calculations.
 
-#### Example 
+### Example 
 Let's have the following 10 observations. The classical methods for estimating 
 the parameters of the model, the arithmetic mean and standard deviation, may be
 affected by outliers.
@@ -68,7 +67,7 @@ std(x)
 |$\tau-scale$   |0.28               |0.22                         |
 |$Q_n-scale$    |0.37               |0.31                         |
  
-### 2. Covariance
+## 2. Covariance
 Similarly as in the univariate case outliers can influence the 
 estimators of multivariate data, these are in first line the 
 multivariate location and covariance esimators. Apart from 
@@ -95,7 +94,7 @@ The plot is drawn by the `dd_plot()` function
 function, after obtaining a robust covariance estimator by the `fit!()` 
 method.
 
-#### Example
+### Example
 
 ```{julia}
 mcd = CovMcd();
@@ -117,16 +116,36 @@ Robust estimate of covariance:
 ```
 ![](dd_plot.png)<!-- -->
 
-### 3. Data sets
+## 3. Data sets
 `Robustbase` includes several datasets that are often used in the robustness literature.
 These datasets serve as standard examples and benchmarks, allowing users to easily test
 robust algorithms. They are also available in the R-packages `robustbase` and `rrcov`.
 
-### 4. Further development
+## 4. Further development
 - Add S- and MM-estimators of multivariate location and covariance matrix
 - Add regression analysis: Least Trimmed Squares regression
 - Add Principal component analysis
 - Add Discriminant analysis
+
+# Citation 
+If you use this software, please cite:
+
+Todorov, V. (2026). "Essential" Robust Statistics. Tools to analyze data with robust methods.
+URL https://valentint.github.io/Robustbase.jl/stable/. doi:10.5281/zenodo.20562919
+
+
+or in ```BibTeX``` format:
+
+```
+@software{Robustbase.jl,
+    author = {Valentin Todorov},
+    doi = {10.5281/zenodo.20562919},
+    license = {["MIT"]},
+    title = {{"Essential" Robust Statistics. Tools to analyze data with robust methods.}},
+    year = 2026,
+    url = {https://valentint.github.io/Robustbase.jl/stable/}}
+```
+
 
 ## Community guidelines
 
