@@ -318,7 +318,7 @@ using Random
 
 
             ## Test partitions
-            Random.seed!(1234)
+            Random.seed!(999999)
             dd = randn(1000, 3)
             mcd=CovMcd(); 
             fit!(mcd, dd);
@@ -326,7 +326,7 @@ using Random
             @test isapprox(covariance(mcd), [1.0559351214910597 -0.014130180358259194 0.010069181114157588; -0.014130180358259194 0.958846597311482 0.052548818362356975; 0.010069181114157588 0.052548818362356975 0.9874841598532943])
 
             ## near to the limit 2*nmini=600 (e.g. Philips data)
-            Random.seed!(1234)
+            Random.seed!(999999)
             dd = randn(677, 3)
             mcd=CovMcd(); 
             fit!(mcd, dd);
@@ -334,7 +334,7 @@ using Random
             @test isapprox(covariance(mcd), [1.1250810157701676 -0.034212982553371796 0.08682362639710196; -0.034212982553371796 0.9500897070368451 0.052661546065787525; 0.08682362639710196 0.052661546065787525 1.0145558132234926])
 
             ## above kmini * nmini = 5 * 300 = 1500
-            Random.seed!(1234)
+            Random.seed!(999999)
             dd = randn(1800, 3)
             mcd=CovMcd(); 
             fit!(mcd, dd);
